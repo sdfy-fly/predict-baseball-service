@@ -1,11 +1,23 @@
 from bcrypt import hashpw
 import requests
 
-def getJWT(email='armeno2004@gmail.com', password='Aboba2022@') : 
-    salt = requests.get(f'https://api.sorare.com/api/v1/users/{email}').json()['salt']
-    
-    passwordHash = hashpw( bytes(password , 'utf-8') , bytes(salt , 'utf-8'))
+"""
+    Обернуть функции в блок Try и подумать над кодами возврата, чтобы на фронтеде отображалась ошибка
+"""
 
+def getJWT(email='armeno2004@gmail.com', password='Aboba2022@') : 
+
+    """
+        Принимаю: логин и пароль
+        Возвращаю: JWT token
+    """
+
+    """
+        сделать проверку на то правильно ввел юзер пароль или нет
+    """
+
+    salt = requests.get(f'https://api.sorare.com/api/v1/users/{email}').json()['salt']
+    passwordHash = hashpw( bytes(password , 'utf-8') , bytes(salt , 'utf-8'))
 
     responce = requests.post('https://api.sorare.com/graphql' , 
             headers={'content-type': 'application/json', },
@@ -17,26 +29,15 @@ def getJWT(email='armeno2004@gmail.com', password='Aboba2022@') :
 
     JWTtoken = responce['jwtToken']['token']
 
-    """
-        сделать ебаную проверку на то правильно ввел юзер пароль или нет
-    """
     return JWTtoken
 
-    # if JWTtoken.status_code == '200' : 
-    #     pass
-    # else : 
-    #     return 'Неверный логин или пароль'
 
-
-# token = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzMTI5ZWNiMi05ZDI2LTQ5M2MtODYxNC1kYjIzMjBhOTJlYmMiLCJzY3AiOiJ1c2VyIiwiYXVkIjoiPFlvdXJBdWQ-IiwiaWF0IjoxNjYzNjAzOTMzLCJleHAiOiIxNjk1MTYwODg1IiwianRpIjoiODBiM2EzYjktNTZhMi00YTM0LWI0ZjQtNGZkYzcyY2RjN2U0In0.AiEkzesIsuisFsR3yr6YjsITWEgYMUxgfRDWUXD9L8I'
-4334t3t
-
-def getUserID(JWT) : 
+def getInfo(JWT) : 
     
     """
-        Принимаю JWT токен, отправляю запрос и получаю userID и nickname юзера.
+        Принимаю: JWT токен,
+        Возвращаю словарь : JWT, userID , nickname , algoliaApiKey, algoliaAppicationID
     """
-
 
     headers = {
         'content-type' : 'application/json' , 
@@ -52,24 +53,38 @@ def getUserID(JWT) :
         }   
     }
 
-    responce = requests.post('https://api.sorare.com/graphql' , headers=headers , json=data).json()
+    responce = requests.post('https://api.sorare.com/graphql' , headers=headers , json=data).json()['data']
    
-    userId = responce['data']['currentUser']['id'][5:]
+    userId = responce['currentUser']['id'][5:]
+    nickname = responce['currentUser']['nickname']
 
-    nickname = responce['data']['currentUser']['nickname']
+    algoliaApiKey = responce['config']["algoliaSearchApiKey"]
+    algoliaApplicationId = responce['config']["algoliaApplicationId"]
 
-    return {'userID' : userId , 'nickname' : nickname}
+    return {'JWT' : JWT ,'userID' : userId , 'nickname' : nickname , 'x-algolia-application-id' : algoliaApiKey , 'x-algolia-api-key' : algoliaApplicationId}
 
 
-# token = getJWT()
-# getUserID(token)
+def getCardsID(algoliaApiKey , algoliaApplicationId, userID) : 
 
-"""
+    """
+        Принимаю: x-algolia-api-key, x-algolia-application-id , userID
+        Возвращаю: массив из ID всех карточек
+    """
 
-+ 1) получение токена 
-+ 2) получение userID
-- 3) получение всех ID карточек юзера по его userID
-- 4) получение всех карточек юзера 
-- 5) отправка json на фронтенд
+    url = 'https://7z0z8pasdy-dsn.algolia.net/1/indexes/*/queries'
+    headers = {
+        'x-algolia-api-key' : algoliaApiKey,
+        'x-algolia-application-id' : algoliaApplicationId 
+    }
+    body = {"requests":[{"indexName":"Card","params":f"highlightPreTag=%3Cais-highlight-0000000000%3E&highlightPostTag=%3C%2Fais-highlight-0000000000%3E&hitsPerPage=40&analyticsTags=%5B%22Gallery%22%5D&filters=sport%3Abaseball&distinct=true&attributesToRetrieve=%5B%22asset_id%22%5D&attributesToHighlight=none&maxValuesPerFacet=30&page=0&facets=%5B%22user.id%22%2C%22rarity%22%5D&tagFilters=&facetFilters=%5B%22user.id%3A{userID}%22%5D"}]}
+    responce = requests.post(url, headers=headers , json=body).json()
 
-"""
+    cardsID = []
+    for page in responce['results'] : 
+        for id in page['hits'] : 
+            cardsID.append(id['objectID'][16:])
+
+    return cardsID
+
+
+
