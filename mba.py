@@ -12,24 +12,23 @@ def getJWT(email='armeno2004@gmail.com', password='Aboba2022@') :
         Возвращаю: JWT token
     """
 
-    """
-        сделать проверку на то правильно ввел юзер пароль или нет
-    """
+    try : 
+        salt = requests.get(f'https://api.sorare.com/api/v1/users/{email}').json()['salt']
+        passwordHash = hashpw( bytes(password , 'utf-8') , bytes(salt , 'utf-8'))
 
-    salt = requests.get(f'https://api.sorare.com/api/v1/users/{email}').json()['salt']
-    passwordHash = hashpw( bytes(password , 'utf-8') , bytes(salt , 'utf-8'))
+        responce = requests.post('https://api.sorare.com/graphql' , 
+                headers={'content-type': 'application/json', },
+                json={
+                    "operationName": "SignInMutation",
+                    "variables": { "input": { "email": email, "password": passwordHash.decode() } },
+                    "query": "mutation SignInMutation($input: signInInput!) { signIn(input: $input) { currentUser { slug jwtToken(aud: \"<YourAud>\") { token expiredAt } } errors { message } } }",
+                    "data":{"signIn":{"currentUser":{"slug":"<YourSlug>","jwtToken":{"token":"<YourJWTToken>","expiredAt":"..."}},"errors":[]}}}).json()['data']['signIn']['currentUser']
 
-    responce = requests.post('https://api.sorare.com/graphql' , 
-            headers={'content-type': 'application/json', },
-            json={
-                "operationName": "SignInMutation",
-                "variables": { "input": { "email": email, "password": passwordHash.decode() } },
-                "query": "mutation SignInMutation($input: signInInput!) { signIn(input: $input) { currentUser { slug jwtToken(aud: \"<YourAud>\") { token expiredAt } } errors { message } } }",
-                "data":{"signIn":{"currentUser":{"slug":"<YourSlug>","jwtToken":{"token":"<YourJWTToken>","expiredAt":"..."}},"errors":[]}}}).json()['data']['signIn']['currentUser']
+        JWTtoken = responce['jwtToken']['token']
 
-    JWTtoken = responce['jwtToken']['token']
-
-    return JWTtoken
+        return JWTtoken
+    except: 
+        return 0
 
 
 def getInfo(JWT) : 
@@ -61,8 +60,7 @@ def getInfo(JWT) :
     algoliaApiKey = responce['config']["algoliaSearchApiKey"]
     algoliaApplicationId = responce['config']["algoliaApplicationId"]
 
-    return {'JWT' : JWT ,'userID' : userId , 'nickname' : nickname , 'x-algolia-application-id' : algoliaApiKey , 'x-algolia-api-key' : algoliaApplicationId}
-
+    return {'JWT' : JWT ,'userID' : userId , 'nickname' : nickname , 'x-algolia-application-id' : algoliaApplicationId , 'x-algolia-api-key' : algoliaApiKey}
 
 def getCardsID(algoliaApiKey , algoliaApplicationId, userID) : 
 
