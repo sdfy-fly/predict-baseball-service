@@ -1,4 +1,5 @@
 import asyncio
+import json
 import aiohttp
 from bcrypt import hashpw
 import requests
@@ -121,12 +122,13 @@ async def getUserCards(cardsID):
     return cards
 
 
-async def main():
-    JwtToken = await getJWT('rozhov25@bk.ru' , 'testPASS')
-    userInfo = await getInfo(JwtToken)
-    cardsID = await getCardsId(userInfo['x-algolia-api-key'], userInfo['x-algolia-application-id'], userInfo['userID'])
+# async def main():
+#     JwtToken = await getJWT('rozhov25@bk.ru' , 'testPASS')
+#     userInfo = await getInfo(JwtToken)
+#     cardsID = await getCardsId(userInfo['x-algolia-api-key'], userInfo['x-algolia-application-id'], userInfo['userID'])
 
-    print(await getUserCards(cardsID))
+#     with open('1.json' , 'w' , encoding='utf-8') as file : 
+#         json.dump(await getUserCards(cardsID) , file , indent=4 , ensure_ascii=False)
 
-asyncio.get_event_loop().run_until_complete(main())
+# asyncio.get_event_loop().run_until_complete(main())
 
