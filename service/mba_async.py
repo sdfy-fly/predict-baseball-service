@@ -1,8 +1,5 @@
-import asyncio
-import json
 import aiohttp
 from bcrypt import hashpw
-import requests
 
 """
     Обернуть функции в блок Try и подумать над кодами возврата, чтобы на фронтеде отображалась ошибка
@@ -23,13 +20,13 @@ async def getJWT(email='armeno2004@gmail.com', password='Aboba2022@'):
                 bytes(password, 'utf-8'), bytes(salt, 'utf-8'))
 
             responce = await session.post('https://api.sorare.com/graphql',
-                                          headers={
-                                              'content-type': 'application/json', },
-                                          json={
-                                              "operationName": "SignInMutation",
-                                              "variables": {"input": {"email": email, "password": passwordHash.decode()}},
-                                              "query": "mutation SignInMutation($input: signInInput!) { signIn(input: $input) { currentUser { slug jwtToken(aud: \"<YourAud>\") { token expiredAt } } errors { message } } }",
-                                              "data": {"signIn": {"currentUser": {"slug": "<YourSlug>", "jwtToken": {"token": "<YourJWTToken>", "expiredAt": "..."}}, "errors": []}}})  # .json()['data']['signIn']['currentUser']
+                headers={
+                        'content-type': 'application/json', },
+                json={
+                    "operationName": "SignInMutation",
+                    "variables": {"input": {"email": email, "password": passwordHash.decode()}},
+                    "query": "mutation SignInMutation($input: signInInput!) { signIn(input: $input) { currentUser { slug jwtToken(aud: \"<YourAud>\") { token expiredAt } } errors { message } } }",
+                    "data": {"signIn": {"currentUser": {"slug": "<YourSlug>", "jwtToken": {"token": "<YourJWTToken>", "expiredAt": "..."}}, "errors": []}}})
 
             JWTtoken = (await responce.json())['data']['signIn']['currentUser']['jwtToken']['token']
             return JWTtoken
