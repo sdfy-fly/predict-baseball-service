@@ -10,14 +10,27 @@
     <form method="POST">
         {% csrf_token %}
 
-        <input type="text" name="email">
-        <input type="text" name="password">
-        <button type="submit">Отправить</button>
+        <input type="text" class="input" name="email">
+        <input type="text" class="input" name="password">
+        <button type="submit" class="btn__sumbit">Отправить</button>
         <button type="reset">Сбросить</button>
 
     </form>
+    {{userInfo}}
 
-    {{cards}}
+    <a href="{% url 'getCards' %}">Получить карточки</a>
+
+    <script>
+        
+        addEventListener('click' , () => {
+            inputs = document.querySelector('.input')
+            userInfo =  fetch('http://127.0.0.1:8000/auth/', {
+                method: 'POST',
+                body: JSON.stringify({'email' : 'rozhov25@bk.ru' , 'password' : 'testPASS'})
+            });
+        })
+        
+    </script>
     
 </body>
 </html>
