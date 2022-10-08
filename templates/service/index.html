@@ -12,7 +12,8 @@
 
         <input type="text" class="input" name="email">
         <input type="text" class="input" name="password">
-        <button type="submit" class="btn__sumbit">Отправить</button>
+        <button type="button" class="btn__userInfo">Получить UserInfo</button>
+        <button type="button" class="btn__cards">Получить UserCards</button>
         <button type="reset">Сбросить</button>
 
     </form>
@@ -20,25 +21,42 @@
 
     <a href="{% url 'getCards' %}">Получить карточки</a>
 
+    
+
+
     <div class="data"></div>
 
     <script>
         
-        document.querySelector('form').addEventListener('submit' , (e) => {
+        document.querySelector('.btn__userInfo').addEventListener('click' , (e) => {
             e.preventDefault()
             let inputs = document.querySelectorAll('.input')
             let date = new Date()
-            for (let i = 0; i < 10; i++) {
-                fetch('http://127.0.0.1:8000/action' , {
+            for (let i = 0; i < 1; i++) {
+                fetch('http://127.0.0.1:8000/api/auth' , {
                     method : 'POST' , 
                     headers : {'Accept': 'application/json', 'Content-Type': 'application/json',} ,
                     body : JSON.stringify({'email' : inputs[0].value , 'password' : inputs[1].value})
-                    // }).then(res => res.json()).then(res => document.querySelector('.data').innerHTML = JSON.stringify(res.cards))
-                    }).then(res => res.json()).then(res => console.log(`Выполнен запрос №${i} ${JSON.stringify(res.cards)}  ${date.getSeconds()}`))
+                    }).then(res => res.json()).then(res => console.log(`Выполнен запрос №${i} ${JSON.stringify(res.userInfo)}  ${date.getSeconds()}`))
                 
             }
             
             
+        })
+
+
+        document.querySelector('.btn__cards').addEventListener('click' , (e) => {
+            e.preventDefault()
+            let date = new Date()
+            fetch('http://127.0.0.1:8000/api/get-cards' , {
+                method : 'POST' , 
+                headers : {'Accept': 'application/json', 'Content-Type': 'application/json',} ,
+                body : JSON.stringify({
+                    'x-algolia-api-key' : '4efd78ac67e55d3f6f37e7ebcd2295d8' , 
+                    'x-algolia-application-id' : "7Z0Z8PASDY" , 
+                    'userID' : '3129ecb2-9d26-493c-8614-db2320a92ebc'
+                })
+            }).then(res => res.json()).then(res => console.log(`Выполнен запрос, ${JSON.stringify(res.cards)}  ${date.getSeconds()}`))    
         })
         
     </script>

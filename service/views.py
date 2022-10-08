@@ -1,110 +1,85 @@
-from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from .mba_async import *
 
-from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 from asgiref.sync import sync_to_async, async_to_sync
-from django.views.decorators.csrf import csrf_exempt
-from django.views import View
 
 async def index(request):
-
-    # cards = None
-    # if request.method == 'POST' : 
-    #     email = request.POST['email']
-    #     password = request.POST['password']
-
-    #     JwtToken = await getJWT(email , password)
-
-    #     try : 
-    #         userInfo = await getInfo(JwtToken)
-    #         cardsID = await getCardsId(userInfo['x-algolia-api-key'], userInfo['x-algolia-application-id'], userInfo['userID'])
-    #         cards = await getUserCards(cardsID)    
-    #     except: 
-    #         return Response(status=403)
-
     return render(request , 'service/index.html' )
 
+class Auth(APIView): 
 
-# @api_view(('POST',))
-# async def auth(request) : 
-
-#     userInfo = None
-
-#     email = request.POST['email']
-#     password = request.POST['password']
-
-#     JwtToken = await getJWT(email , password)
-
-#     try : 
-#         userInfo = await getInfo(JwtToken)  
-#         # .... запись в бд
-#     except: 
-#         return Response(status=403)
-
-#     return Response({'userInfo' : userInfo})
-
-
-# @csrf_exempt
-# @async_to_sync
-@api_view(('POST',))
-async def auth(request) : 
-
-    userInfo = None
-
-    email = request.data['email']
-    password = request.data['password']
-    print(email , password)
-    JwtToken = await getJWT(email , password)
-
-    try : 
-        userInfo = await getInfo(JwtToken)  
-        # .... запись в бд
-    except: 
-        return Response(status=403)
-
-    return JsonResponse({'userInfo' : userInfo})
-    # sync_to_async
-    # return Response({'userInfo' : userInfo})
-    
-
-
-@api_view(('POST',))
-async def getCards(request):
-    try : 
-        cardsID = await getCardsId(request.POST['x-algolia-api-key'], request.POST['x-algolia-application-id'], request.POST['userID'])
-        cards = await getUserCards(cardsID)    
-        return Response({'cards' : cards})
-    except: 
-        return Response(status=403)
-
-
-class Action(APIView) : 
-
-    def get(self,request):
-        return render(request , 'service/index.html' )
-
+    """
+        В Post запросе принимаю email и password
+        Возвращаю userInfo со всеми данными о юзере(Jwt, userId , nickname и тд)
+    """
 
     def post(self,request) : 
         email = request.data['email']
         password = request.data['password']
 
-        # card = async_to_sync(self.action(email , password))
-        cards = self.action(email , password)
+        userInfo = self.auth(email,password)
+        if not userInfo : 
+            return Response(status=403)
+
+        # сохранить данные в бд
+
+        return Response(userInfo)
+
+    @async_to_sync
+    async def auth(self,email,password) : 
+
+        try : 
+            JwtToken = await getJWT(email , password)
+            userInfo = await getInfo(JwtToken)
+        except : 
+            return None
+        
+        return {'userInfo' : userInfo}
+
+
+class UserCards(APIView) : 
+
+    def post(self,request) : 
+        
+        x_algolia_api_key = request.data['x-algolia-api-key']
+        x_algolia_application_id = request.data['x-algolia-application-id']
+        userID = request.data['userID']
+
+        cards = self.getCards(x_algolia_api_key , x_algolia_application_id, userID)
         return Response(cards)
 
     @async_to_sync
-    async def action(self,email,password) : 
-        JwtToken = await getJWT(email , password)
-        userInfo = await getInfo(JwtToken)
-        cardsID = await getCardsId(userInfo['x-algolia-api-key'], userInfo['x-algolia-application-id'], userInfo['userID'])
+    async def getCards(self,x_algolia_api_key,x_algolia_application_id,userID) : 
+        
+        cardsID = await getCardsId(x_algolia_api_key, x_algolia_application_id, userID)
         cards = await getUserCards(cardsID)    
-        return {'cards' : userInfo}
+        return {'cards' : cards}
 
 
-
-# сделать проверку на авторизацию 
 # сделать таблицу игроков
+
+
+# class Action(APIView) : 
+
+#     def get(self,request):
+#         return render(request , 'service/index.html' )
+
+
+#     def post(self,request) : 
+#         email = request.data['email']
+#         password = request.data['password']
+
+#         # card = async_to_sync(self.action(email , password))
+#         cards = self.action(email , password)
+#         return Response(cards)
+
+#     @async_to_sync
+#     async def action(self,email,password) : 
+#         JwtToken = await getJWT(email , password)
+#         userInfo = await getInfo(JwtToken)
+#         cardsID = await getCardsId(userInfo['x-algolia-api-key'], userInfo['x-algolia-application-id'], userInfo['userID'])
+#         cards = await getUserCards(cardsID)    
+#         return {'cards' : cards}
