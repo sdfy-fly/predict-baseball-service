@@ -25,7 +25,7 @@
 
 
     <div class="data"></div>
-
+    <p class="btn__detail" style="border : 2px solid red; width: 370px;">Нажми чтобы получить информацию о игроках</p>
     <script>
         
         document.querySelector('.btn__userInfo').addEventListener('click' , (e) => {
@@ -39,9 +39,7 @@
                     body : JSON.stringify({'email' : inputs[0].value , 'password' : inputs[1].value})
                     }).then(res => res.json()).then(res => console.log(`Выполнен запрос №${i} ${JSON.stringify(res.userInfo)}  ${date.getSeconds()}`))
                 
-            }
-            
-            
+            }     
         })
 
 
@@ -58,6 +56,23 @@
                 })
             }).then(res => res.json()).then(res => console.log(`Выполнен запрос, ${JSON.stringify(res.cards)}  ${date.getSeconds()}`))    
         })
+
+
+        document.querySelector('.btn__detail').addEventListener('click' , (e) => 
+        {
+            e.preventDefault()
+            
+            fetch('http://127.0.0.1:8000/api/players-detail' , 
+                {
+                    method : 'POST' , 
+                    headers : {'Accept': 'application/json', 'Content-Type': 'application/json'} 
+                }
+            )
+            .then(res => res.json()).then(res => console.log(res))
+   
+        })
+
+
         
     </script>
     

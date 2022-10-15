@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from .utils import *
+from .playersDetail import GetPlayersDetail
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -58,3 +59,21 @@ class UserCards(APIView) :
         cards = await getUserCards(cardsID)    
         return {'cards' : cards}
 
+class PlayersDetail(APIView):
+
+    def post(self,request):
+        
+        data = self.getPlayersDetail()
+        if data : 
+            return Response(data)
+
+        return Response(status=500)
+
+    @async_to_sync
+    async def getPlayersDetail(self):
+        gpd = GetPlayersDetail()
+        try:
+            data = await gpd.getData()
+            return data
+        except:
+            return None
