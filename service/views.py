@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .mba_async import *
+from .utils import *
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -58,28 +58,3 @@ class UserCards(APIView) :
         cards = await getUserCards(cardsID)    
         return {'cards' : cards}
 
-
-# сделать таблицу игроков
-
-
-# class Action(APIView) : 
-
-#     def get(self,request):
-#         return render(request , 'service/index.html' )
-
-
-#     def post(self,request) : 
-#         email = request.data['email']
-#         password = request.data['password']
-
-#         # card = async_to_sync(self.action(email , password))
-#         cards = self.action(email , password)
-#         return Response(cards)
-
-#     @async_to_sync
-#     async def action(self,email,password) : 
-#         JwtToken = await getJWT(email , password)
-#         userInfo = await getInfo(JwtToken)
-#         cardsID = await getCardsId(userInfo['x-algolia-api-key'], userInfo['x-algolia-application-id'], userInfo['userID'])
-#         cards = await getUserCards(cardsID)    
-#         return {'cards' : cards}
