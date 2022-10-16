@@ -2,8 +2,6 @@ import asyncio
 from datetime import date , timedelta 
 import aiohttp
 
-import time 
-
 class GetPlayersDetail():
     players = {}
 
@@ -63,9 +61,6 @@ class GetPlayersDetail():
                     d = date.today() + timedelta(days=index)
                     dates.append(str(d))
                     url = f'https://www.rotowire.com/baseball/tables/daily-projections.php?pos=ALL&start={d}'
-                    # responce = await (await session.get(url=url)).json()  
-                    
-                    # await self.get_data(responce , index)
                     
                     tasks.append(self.get_data(session , url , index))  
 
@@ -75,17 +70,3 @@ class GetPlayersDetail():
 
         await self.get_pages()
         return self.players
-
-# async def main():
-
-#     start = time.time()
-
-#     gpd = GetPlayersDetail()
-#     print(await gpd.getData())
-
-
-#     end = time.time()
-
-#     print(end - start )
-
-# asyncio.get_event_loop().run_until_complete(main())

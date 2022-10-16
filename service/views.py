@@ -1,11 +1,16 @@
 from django.shortcuts import render
+
 from .utils import *
 from .playersDetail import GetPlayersDetail
+from .schedule import * 
 
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from django.contrib.auth.models import User
 from asgiref.sync import sync_to_async, async_to_sync
+
+from rest_framework.renderers import TemplateHTMLRenderer
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
 
 async def index(request):
     return render(request , 'service/index.html' )
@@ -77,3 +82,18 @@ class PlayersDetail(APIView):
             return data
         except:
             return None
+
+class GetSchesule(APIView):
+
+    renderer_classes = [TemplateHTMLRenderer]
+    template_name = 'service/schedule.html'
+
+    def post(self,request):
+        data = self.getData()
+        return Response(data)
+   
+
+    @async_to_sync
+    async def getData(self):
+        return {'data' : await getSchedule()}
+                
