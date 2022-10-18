@@ -20,10 +20,22 @@ async def getSchedule():
 
                 soup = BeautifulSoup(await response.text() , 'html.parser')
                 data["data"] = soup.find(class_='starters-matrix mb-10')
-                print(len(soup.find_all(class_='flex-row myleagues__proteam')))
                 return data
                 
         await auth_(session,auth)
         await getData(session,url) 
 
         return data
+
+
+async def getInjuryNews(date):
+
+    """ принимаю дату в формате 2022-10-18"""
+
+    url = f"https://www.rotowire.com/baseball/ajax/get-more-updates.php?type=custom&itemID=custom&lastUpdateTime={date}%2008%3A39%3A56.117&numUpdates=25&injuries=all" 
+
+    async with aiohttp.ClientSession() as session : 
+        async with session.post(url=url) as response :  
+ 
+            data = await response.json()  
+            return data 

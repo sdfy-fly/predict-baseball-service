@@ -91,9 +91,25 @@ class GetSchesule(APIView):
     def post(self,request):
         data = self.getData()
         return Response(data)
-   
 
     @async_to_sync
     async def getData(self):
         return {'data' : await getSchedule()}
-                
+
+class GetInjuryNews(APIView):
+
+    def post(self,request):
+        data = self.getData(request.data['date'])
+
+        if data : 
+            return Response(data)
+        else : 
+            return Response(status=500)
+
+    @async_to_sync
+    async def getData(self, date):
+
+        try : 
+            return await getInjuryNews(date)
+        except : 
+            return None 
