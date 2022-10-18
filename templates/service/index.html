@@ -26,6 +26,8 @@
 
     <div class="data"></div>
     <p class="btn__detail" style="border : 2px solid red; width: 370px;">Нажми чтобы получить информацию о игроках</p>
+    <p class="btn__schedule">Нажми чтобы получить расписание</p>
+    
     <script>
         
         document.querySelector('.btn__userInfo').addEventListener('click' , (e) => {
@@ -70,6 +72,26 @@
             )
             .then(res => res.json()).then(res => console.log(res))
    
+        })
+
+        document.querySelector('.btn__schedule').addEventListener('click' , (e) => 
+        {
+            e.preventDefault()
+            let date = new Date()
+            fetch('http://127.0.0.1:8000/api/schedule' , 
+                {
+                    method : 'POST' , 
+                    // headers : {'Accept': 'application/json', 'Content-Type': 'application/json'} 
+                }
+            ).then((response) => {
+                return response.text();
+            })
+            .then((html) => {
+                document.querySelector('.btn__schedule').innerHTML = html ;
+                console.log(date.getSeconds())
+            });
+            // .then(res => console.log("запрос выполнен " + res  +  date.getSeconds()))
+            
         })
 
 
