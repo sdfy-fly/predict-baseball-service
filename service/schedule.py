@@ -45,7 +45,7 @@ async def getInjuryNews(date):
                 analyst = injure.find(class_='news-update__analysis').text.strip()
                 analyst = analyst.replace('ANALYSIS', '').strip()
                 res.append({
-                    "id": f'{name} {short_news} {date}',
+                    "id": f'{name}_{short_news}_{date}',
                     "logo": img,
                     "team": team_name,
                     "playerName": name,
