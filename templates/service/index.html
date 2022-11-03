@@ -27,9 +27,20 @@
     <div class="data"></div>
     <p class="btn__detail" style="border : 2px solid red; width: 370px;">Нажми чтобы получить информацию о игроках</p>
     <p class="btn__schedule">Нажми чтобы получить расписание</p>
+    <p class="block__injury" ></p>
     
     <script>
         
+        fetch('http://127.0.0.1:8000/api/injury' , 
+            {
+                method : 'POST' , 
+                headers : {'Accept': 'application/json', 'Content-Type': 'application/json'} , 
+                body : JSON.stringify({"date" : "2022-10-20" })
+            }
+        )
+        .then(res => res.json()).then(res => document.querySelector('.block__injury').innerHTML = res['updatesHTML'])
+
+
         document.querySelector('.btn__userInfo').addEventListener('click' , (e) => {
             e.preventDefault()
             let inputs = document.querySelectorAll('.input')
@@ -81,7 +92,6 @@
             fetch('http://127.0.0.1:8000/api/schedule' , 
                 {
                     method : 'POST' , 
-                    // headers : {'Accept': 'application/json', 'Content-Type': 'application/json'} 
                 }
             ).then((response) => {
                 return response.text();
