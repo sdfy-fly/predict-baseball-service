@@ -38,11 +38,15 @@ async def getInjuryNews(date):
                 logo = injure.find(class_='news-update__logo')
                 img = logo.get('src')
                 team_name = logo.get('alt')
-                name = injure.find(class_='news-update__player-link').text.strip()
-                short_news = injure.find(class_='news-update__headline').text.strip()
-                date = injure.find(class_='news-update__timestamp').text.strip()
+                name = injure.find(
+                    class_='news-update__player-link').text.strip()
+                short_news = injure.find(
+                    class_='news-update__headline').text.strip()
+                date = injure.find(
+                    class_='news-update__timestamp').text.strip()
                 news = injure.find(class_='news-update__news').text.strip()
-                analyst = injure.find(class_='news-update__analysis').text.strip()
+                analyst = injure.find(
+                    class_='news-update__analysis').text.strip()
                 analyst = analyst.replace('ANALYSIS', '').strip()
                 res.append({
                     "id": f'{name}_{short_news}_{date}',
