@@ -94,7 +94,8 @@ class GetSchesule(APIView):
 
     @async_to_sync
     async def getData(self):
-        return {'data' : await getSchedule()}
+        return await getSchedule()
+
 
 class GetInjuryNews(APIView):
 
