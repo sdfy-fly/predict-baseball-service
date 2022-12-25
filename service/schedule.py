@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 async def getSchedule():
     url = 'https://www.rotowire.com/baseball/projected-starters.php'
     auth = {'username': 'Keysik', 'password': 'Fantasymlb'}
-    data = {'data': ""}
+    res = []
     async with aiohttp.ClientSession() as session:
         async def auth_(session: aiohttp.ClientSession, auth):
             async with session.post('https://www.rotowire.com/users/login.php', data=auth) as r:
@@ -13,14 +13,37 @@ async def getSchedule():
 
         async def getData(session: aiohttp.ClientSession, url):
             async with session.get(url=url) as response:
-                soup = BeautifulSoup(await response.text(), 'html.parser')
-                data["data"] = soup.find(class_='starters-matrix mb-10')
-                return data
+                soup = BeautifulSoup(await response.text(), 'lxml')
+                schedule = soup.find('div', class_=['starters-matrix', 'mb-10'])
+                table_lines = schedule.findAll('div', class_=['flex-row', 'myleagues__proteam'])
+                for line in table_lines:
+                    team_logo = line.findNext(name='img')
+                    logo = team_logo.get('src').strip()
+                    team = team_logo.get('alt').strip()
+                    team_columns = line.findAll(class_='starters-matrix__item')
+                    columns = []
+                    for column in team_columns:
+                        content = column.findAll(name='div')
+                        if len(content) == 3:
+                            columns.append({
+                                'name': content[0].text.strip(),
+                                'stats': content[1].text.strip(),
+                                'time': content[2].text.replace('@', 'vs').strip()
+                            })
+                        else:
+                            columns.append('-')
+                    res.append({
+                        'team': team,
+                        'logo': logo,
+                        'columns': columns
+                    })
+
+                return res
 
         await auth_(session, auth)
         await getData(session, url)
 
-        return data
+        return res[1:]
 
 
 async def getInjuryNews(date):

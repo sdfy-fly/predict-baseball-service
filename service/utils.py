@@ -1,5 +1,5 @@
 import aiohttp
-from bcrypt import hashpw
+import bcrypt
 
 """
     Обернуть функции в блок Try и подумать над кодами возврата, чтобы на фронтеде отображалась ошибка
@@ -15,10 +15,9 @@ async def getJWT(email='armeno2004@gmail.com', password='Aboba2022@'):
 
     try:
         async with aiohttp.ClientSession() as session:
-            salt = (await (await session.get(f'https://api.sorare.com/api/v1/users/{email}')).json())['salt']
-            passwordHash = hashpw(
+            salt = (await (await session.get(f'https://api.sorare.com/api/v1/users/{email}')).json()).get('salt')
+            passwordHash = bcrypt.hashpw(
                 bytes(password, 'utf-8'), bytes(salt, 'utf-8'))
-
             responce = await session.post('https://api.sorare.com/graphql',
                 headers={
                         'content-type': 'application/json', },
@@ -27,8 +26,7 @@ async def getJWT(email='armeno2004@gmail.com', password='Aboba2022@'):
                     "variables": {"input": {"email": email, "password": passwordHash.decode()}},
                     "query": "mutation SignInMutation($input: signInInput!) { signIn(input: $input) { currentUser { slug jwtToken(aud: \"<YourAud>\") { token expiredAt } } errors { message } } }",
                     "data": {"signIn": {"currentUser": {"slug": "<YourSlug>", "jwtToken": {"token": "<YourJWTToken>", "expiredAt": "..."}}, "errors": []}}})
-
-            JWTtoken = (await responce.json())['data']['signIn']['currentUser']['jwtToken']['token']
+            JWTtoken = (await responce.json()).get('data').get('signIn').get('currentUser').get('jwtToken').get('token')
             return JWTtoken
     except:
         return 'Неправильный логин или пароль'

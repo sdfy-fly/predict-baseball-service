@@ -58,11 +58,13 @@ class GetPlayersDetail():
 
                 for index in range(7): 
 
-                    d = date.today() + timedelta(days=index)
+                    # d = date.today() + timedelta(days=index)
+                    d = '2022-07-01'
                     dates.append(str(d))
                     url = f'https://www.rotowire.com/baseball/tables/daily-projections.php?pos=ALL&start={d}'
                     
-                    tasks.append(self.get_data(session , url , index))  
+                    tasks.append(self.get_data(session , url , index))
+                    #temp = '-'.join(d.split('-')[:-1]) + '0' + str(int(d.split('-')[-1]) + 1)
 
             await asyncio.gather(*tasks)
 

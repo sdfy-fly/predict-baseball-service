@@ -22,10 +22,9 @@ class Auth(APIView):
         Возвращаю userInfo со всеми данными о юзере(Jwt, userId , nickname и тд)
     """
 
-    def post(self,request) : 
-        email = request.data['email']
-        password = request.data['password']
-
+    def post(self,request) :
+        email = request.data.get('email')
+        password = request.data.get('password')
         userInfo = self.auth(email,password)
         if not userInfo : 
             return Response(status=403)
@@ -37,10 +36,10 @@ class Auth(APIView):
     @async_to_sync
     async def auth(self,email,password) : 
 
-        try : 
+        try :
             JwtToken = await getJWT(email , password)
             userInfo = await getInfo(JwtToken)
-        except : 
+        except :
             return None
         
         return {'userInfo' : userInfo}
@@ -85,8 +84,8 @@ class PlayersDetail(APIView):
 
 class GetSchesule(APIView):
 
-    renderer_classes = [TemplateHTMLRenderer]
-    template_name = 'service/schedule.html'
+    # renderer_classes = [TemplateHTMLRenderer]
+    # template_name = 'service/schedule.html'
 
     def post(self,request):
         data = self.getData()
@@ -94,14 +93,14 @@ class GetSchesule(APIView):
 
     @async_to_sync
     async def getData(self):
-        return {'data' : await getSchedule()}
+        return await getSchedule()
 
 class GetInjuryNews(APIView):
 
     def post(self,request):
         data = self.getData(request.data['date'])
-
-        if data : 
+        print("data", data)
+        if data :
             return Response(data)
         else : 
             return Response(status=500)
