@@ -1,5 +1,5 @@
 import asyncio
-from datetime import date , timedelta 
+from datetime import date , timedelta
 import aiohttp
 
 class GetPlayersDetail():
@@ -31,8 +31,8 @@ class GetPlayersDetail():
             if self.players.get(player["player"]) : 
 
                 self.players[player["player"]]['sum'][index] = daily_sum
-
-            else : 
+                
+            else :
 
                 self.players[player["player"]] = {
                     'name' : player["player"] ,
