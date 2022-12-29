@@ -6,7 +6,7 @@ import bcrypt
 """
 
 
-async def getJWT(email='armeno2004@gmail.com', password='Aboba2022@'):
+async def getJWT(email, password):
 
     """
         Принимаю: логин и пароль
@@ -115,15 +115,3 @@ async def getUserCards(cardsID):
         cards = (await cards.json())['data']
 
     return cards
-
-
-# async def main():
-#     JwtToken = await getJWT('rozhov25@bk.ru' , 'testPASS')
-#     userInfo = await getInfo(JwtToken)
-#     cardsID = await getCardsId(userInfo['x-algolia-api-key'], userInfo['x-algolia-application-id'], userInfo['userID'])
-
-#     with open('1.json' , 'w' , encoding='utf-8') as file : 
-#         json.dump(await getUserCards(cardsID) , file , indent=4 , ensure_ascii=False)
-
-# asyncio.get_event_loop().run_until_complete(main())
-

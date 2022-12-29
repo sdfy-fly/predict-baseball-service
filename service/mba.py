@@ -5,7 +5,7 @@ import requests
     Обернуть функции в блок Try и подумать над кодами возврата, чтобы на фронтеде отображалась ошибка
 """
 
-def getJWT(email='armeno2004@gmail.com', password='Aboba2022@') : 
+def getJWT(email, password) : 
 
     """
         Принимаю: логин и пароль
