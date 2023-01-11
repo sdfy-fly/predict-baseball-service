@@ -17,17 +17,24 @@
         <button type="reset">Сбросить</button>
 
     </form>
-    {{userInfo}}
-
-    <a href="{% url 'getCards' %}">Получить карточки</a>
 
     
 
+    <a href="https://sorare.com/oauth/authorize?client_id=4jCGKupPezkAn_E5YNeoO2o2r0kOYNU0Y1iXTStVgT8&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fapi%2Fauth&response_type=code&scope=" style="display: flex;"> ПОЛУЧИТЬ USER INFO (((ДЛЯ ТУПЫХ -> ВОЙТИ))))</a>
+    {{ code }}
+
+    <div style="display: flex;">
+        UserInfo : : {{userInfo}}
+    </div>
+
+    <a href="{% url 'getCards' %}">Получить карточки</a>
 
     <div class="data"></div>
     <p class="btn__detail" style="border : 2px solid red; width: 370px;">Нажми чтобы получить информацию о игроках</p>
     <p class="btn__schedule">Нажми чтобы получить расписание</p>
     <p class="block__injury" ></p>
+
+    <a href="https://api.sorare.com/oauth/token?client_id=4jCGKupPezkAn_E5YNeoO2o2r0kOYNU0Y1iXTStVgT8&client_secret=m2cDDwXlDngRVXmh_1eQoU55mC_vofh7Hy4p7htqlKQ&code=qL92GXo5SVuVOw9qorx_MrTg0toW3Vo_kAiW9T0spNI&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fapi%2Fauth">ссылка</a>
     
     <script>
         
@@ -40,6 +47,19 @@
         )
         .then(res => res.json()).then(res => document.querySelector('.block__injury').innerHTML = res['updatesHTML'])
 
+
+        // fetch('https://api.sorare.com/oauth/token?client_id=4jCGKupPezkAn_E5YNeoO2o2r0kOYNU0Y1iXTStVgT8&client_secret=m2cDDwXlDngRVXmh_1eQoU55mC_vofh7Hy4p7htqlKQ&code=qL92GXo5SVuVOw9qorx_MrTg0toW3Vo_kAiW9T0spNI&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fapi%2Fauth' , 
+        //     {
+        //         method : 'POST' , 
+        //         headers : {
+        //             'Content-Type': 'application/x-www-form-urlencoded',
+        //             'Accept': 'application/json'
+
+        //         } , 
+               
+        //     }
+        // )
+        // .then(res => res.json()).then(res => console.log(res))
 
         document.querySelector('.btn__userInfo').addEventListener('click' , (e) => {
             e.preventDefault()

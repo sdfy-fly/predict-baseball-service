@@ -7,9 +7,11 @@ from .schedule import *
 from django.contrib.auth.models import User
 from asgiref.sync import sync_to_async, async_to_sync
 
-from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.views import APIView
 from rest_framework.response import Response
+
+
+from tempUtils import *
 
 
 async def index(request):
@@ -22,6 +24,19 @@ class Auth(APIView):
         Возвращаю userInfo со всеми данными о юзере(Jwt, userId , nickname и тд)
     """
 
+    def get(self,request):
+
+        code = self.request.query_params.get('code', None)
+        
+        userInfo = self._testAuth(code)
+        if not userInfo : 
+            return Response(status=403)
+
+        # сохранить данные в бд
+
+        return render(request , 'service/index.html' , {'code' : code , 'userInfo' : userInfo} )
+
+
     def post(self,request) :
         email = request.data.get('email')
         password = request.data.get('password')
@@ -32,6 +47,20 @@ class Auth(APIView):
         # сохранить данные в бд
 
         return Response(userInfo)
+
+    @async_to_sync
+    async def _testAuth(self,code):
+        try:
+            access_token = await tempUtils_getAccessToken(code)
+            userInfo = await tempUtils_getInfo(access_token)
+            user_ID_nickname = await tempUtils_getUserID(access_token)
+
+            userInfo['userID'] = user_ID_nickname['userID']
+            userInfo['nickname'] = user_ID_nickname['nickname']
+        except:
+            return None
+
+        return {'userInfo' : userInfo}
 
     @async_to_sync
     async def auth(self,email,password) : 
@@ -84,9 +113,6 @@ class PlayersDetail(APIView):
 
 class GetSchesule(APIView):
 
-    # renderer_classes = [TemplateHTMLRenderer]
-    # template_name = 'service/schedule.html'
-
     def post(self,request):
         data = self.getData()
         return Response(data)
@@ -99,7 +125,6 @@ class GetInjuryNews(APIView):
 
     def post(self,request):
         data = self.getData(request.data['date'])
-        print("data", data)
         if data :
             return Response(data)
         else : 
