@@ -3,29 +3,26 @@ import asyncio
 
 
 async def tempUtils_getAccessToken(code):
-    
     headers = {
-        'content-type': 'application/x-www-form-urlencoded' , 
-        'User-Agent' : 'PostmanRuntime/7.30.0' , 
-        'Accept' : '*/*'
+        'content-type': 'application/x-www-form-urlencoded',
     }
 
     params = {
         "client_id": "4jCGKupPezkAn_E5YNeoO2o2r0kOYNU0Y1iXTStVgT8",
-        "client_secret": "m2cDDwXlDngRVXmh_1eQoU55mC_vofh7Hy4p7htqlKQ" , 
-        "code" : code , 
-        "grant_type" : "authorization_code" , 
-        "redirect_uri" : "http://localhost:8000/api/auth"
+        "client_secret": "m2cDDwXlDngRVXmh_1eQoU55mC_vofh7Hy4p7htqlKQ",
+        "code": code,
+        "grant_type": "authorization_code",
+        "redirect_uri": "http://localhost:8000/api/auth"
     }
 
-
     async with aiohttp.ClientSession() as session:
-        responce = (await (await session.post(f'https://api.sorare.com/oauth/token', headers=headers , params=params)).json())
-
+        responce = (
+            await (
+                await session.post(f'https://api.sorare.com/oauth/token', headers=headers, params=params, ssl=False)).json())
     return responce['access_token']
 
-async def tempUtils_getUserID(access_token):
 
+async def tempUtils_getUserID(access_token):
     """
         Принимаю access token
         Возвращаю: userId, nickname
@@ -42,15 +39,16 @@ async def tempUtils_getUserID(access_token):
     }
 
     async with aiohttp.ClientSession() as session:
-        responce = (await (await session.post('https://api.sorare.com/graphql', headers=headers, json=data)).json())['data']
-    
+        responce = (await (await session.post('https://api.sorare.com/graphql', headers=headers, json=data, ssl=False)).json())[
+            'data']
+
     userID = responce['currentUser']['id'][5:]
     nickname = responce['currentUser']['slug']
 
-    return {'userID' : userID , 'nickname' : nickname}
+    return {'userID': userID, 'nickname': nickname}
+
 
 async def tempUtils_getInfo(JWT):
-
     """
         Принимаю: JWT токен(access token),
         Возвращаю словарь :  algoliaApiKey, algoliaAppicationID
@@ -59,7 +57,7 @@ async def tempUtils_getInfo(JWT):
     headers = {
         'content-type': 'application/json',
         'Authorization': f'Bearer {JWT}'
-        
+
     }
 
     data = {
@@ -70,27 +68,29 @@ async def tempUtils_getInfo(JWT):
         }
     }
     async with aiohttp.ClientSession() as session:
-        responce = (await (await session.post('https://api.sorare.com/graphql', headers=headers, json=data)).json())['data']
+        responce = (await (await session.post('https://api.sorare.com/graphql', headers=headers, json=data, ssl=False)).json())[
+            'data']
 
     algoliaApiKey = responce['config']["algoliaSearchApiKey"]
     algoliaApplicationId = responce['config']["algoliaApplicationId"]
 
     return {'x-algolia-application-id': algoliaApplicationId, 'x-algolia-api-key': algoliaApiKey}
 
-async def tempUtils_getCardsId(algoliaApiKey, algoliaApplicationId, userID):
 
+async def tempUtils_getCardsId(algoliaApiKey, algoliaApplicationId, userID):
     """
         Принимаю: x-algolia-api-key, x-algolia-application-id , userID
         Возвращаю: массив из ID всех карточек
     """
 
     url = 'https://7z0z8pasdy-dsn.algolia.net/1/indexes/*/queries'
-    
+
     headers = {
         'x-algolia-api-key': algoliaApiKey,
         'x-algolia-application-id': algoliaApplicationId
     }
-    body = {"requests":[{"indexName":"Card","params":f"highlightPreTag=%3Cais-highlight-0000000000%3E&highlightPostTag=%3C%2Fais-highlight-0000000000%3E&hitsPerPage=40&analyticsTags=%5B%22Gallery%22%5D&filters=sport%3Abaseball&distinct=true&attributesToRetrieve=%5B%22asset_id%22%5D&attributesToHighlight=none&maxValuesPerFacet=30&page=0&facets=%5B%22user.id%22%2C%22rarity%22%2C%22on_sale%22%2C%22position%22%2C%22grade%22%2C%22serial_number%22%2C%22team.long_name%22%2C%22player.display_name%22%2C%22player.birth_date_i%22%5D&tagFilters=&facetFilters=%5B%22user.id%3A{userID}%22%5D"}]}
+    body = {"requests": [{"indexName": "Card",
+                          "params": f"highlightPreTag=%3Cais-highlight-0000000000%3E&highlightPostTag=%3C%2Fais-highlight-0000000000%3E&hitsPerPage=40&analyticsTags=%5B%22Gallery%22%5D&filters=sport%3Abaseball&distinct=true&attributesToRetrieve=%5B%22asset_id%22%5D&attributesToHighlight=none&maxValuesPerFacet=30&page=0&facets=%5B%22user.id%22%2C%22rarity%22%2C%22on_sale%22%2C%22position%22%2C%22grade%22%2C%22serial_number%22%2C%22team.long_name%22%2C%22player.display_name%22%2C%22player.birth_date_i%22%5D&tagFilters=&facetFilters=%5B%22user.id%3A{userID}%22%5D"}]}
 
     async with aiohttp.ClientSession() as session:
         responce = await (await session.post(url, headers=headers, json=body)).json()
@@ -100,12 +100,13 @@ async def tempUtils_getCardsId(algoliaApiKey, algoliaApplicationId, userID):
     """
         проверка кода 200 , проверить если ли id, если нет то не вызывать getUserCards(cardsID)
     """
-  
+
     for page in responce['results']:
         for id in page['hits']:
             cardsID.append(id['objectID'][16:])
 
     return cardsID
+
 
 async def tempUtils_getUserCards(cardsID):
     """
@@ -124,18 +125,19 @@ async def tempUtils_getUserCards(cardsID):
     }
 
     async with aiohttp.ClientSession() as session:
-        cards = await session.post('https://api.sorare.com/sports/graphql', headers={'content-type': 'application/json'}, json=body)
+        cards = await session.post('https://api.sorare.com/sports/graphql',
+                                   headers={'content-type': 'application/json'}, json=body)
         cards = (await cards.json())['data']
 
     return cards
 
+
 async def main():
-    code = "RnfK5APaz-7C_HIq_JzOaBQtcUaEP1LN28DBlLGMCcc"
-    
-    # access_token = "dtBlFa7Mnur6op10TZznwHYYL0Wb_JZJ4M85kX2aw2s"
+    code = "M6JeUA1e1OqY7WO27Rhua-2FCxLie5EVxNpQmeUHN5k"
+    # access_token = await tempUtils_getAccessToken(code)
     # userID = (await getUserID(access_token))['userID']
     # userInfo = await getInfo(access_token)
     # cardsID = await getCardsId(userInfo['x-algolia-api-key'] , userInfo['x-algolia-application-id'] , userID)
- 
+
 
 asyncio.run(main())
