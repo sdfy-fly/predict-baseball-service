@@ -19,6 +19,7 @@ async def index(request):
 
 
 class Auth(APIView):
+    
     """
         В Post запросе принимаю email и password
         Возвращаю userInfo со всеми данными о юзере(Jwt, userId , nickname и тд)
@@ -28,13 +29,13 @@ class Auth(APIView):
     def get(self, request):
 
         code = self.request.query_params.get('code', None)
-        ui : dict = self._testAuth(code)
-        if not ui:
+
+        if not code:
             return redirect('http://localhost:3000')
 
         # сохранить данные в бд
+
         # return render(request, 'service/index.html', {'code': code, 'userInfo': userInfo})
-        # return Response(userInfo)
         return redirect(f'http://localhost:3000?code={code}')
 
     def post(self, request):
@@ -44,22 +45,7 @@ class Auth(APIView):
         if not userInfo:
             return Response(status=403)
 
-        # сохранить данные в бд
-
         return Response(userInfo)
-
-    @async_to_sync
-    async def _testAuth(self, code):
-        try:
-            access_token = await tempUtils_getAccessToken(code)
-            userInfo = await tempUtils_getInfo(access_token)
-            user_ID_nickname = await tempUtils_getUserID(access_token)
-            userInfo['userID'] = user_ID_nickname['userID']
-            userInfo['nickname'] = user_ID_nickname['nickname']
-            userInfo['accessToken'] = access_token
-        except:
-            return None
-        return {'userInfo': userInfo}
 
     @async_to_sync
     async def auth(self, email, password):
@@ -72,6 +58,30 @@ class Auth(APIView):
 
         return {'userInfo': userInfo}
 
+
+class GetUserInfo(APIView):
+
+    def post(self, request):
+        code = request.data.get('code')
+        userInfo : dict = self._auth(code)
+
+        if not userInfo : 
+            return Response(status=403)
+        
+        return Response(userInfo)
+
+    @async_to_sync
+    async def _auth(self, code):
+        try:
+            access_token = await tempUtils_getAccessToken(code)
+            userInfo = await tempUtils_getInfo(access_token)
+            user_ID_nickname = await tempUtils_getUserID(access_token)
+            userInfo['userID'] = user_ID_nickname['userID']
+            userInfo['nickname'] = user_ID_nickname['nickname']
+            userInfo['accessToken'] = access_token
+        except:
+            return None
+        return {'userInfo': userInfo}
 
 class UserCards(APIView):
 

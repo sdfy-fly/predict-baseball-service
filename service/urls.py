@@ -1,6 +1,6 @@
 from django.urls import path 
 
-from .views import index,Auth, UserCards, PlayersDetail , GetSchesule, GetInjuryNews
+from .views import index,Auth, UserCards, PlayersDetail , GetSchesule, GetInjuryNews, GetUserInfo
 
 
 urlpatterns = [
@@ -10,4 +10,5 @@ urlpatterns = [
     path('api/players-detail', PlayersDetail.as_view() , name='playersDetail') ,  
     path('api/schedule', GetSchesule.as_view() , name='schedule') ,  
     path('api/injury', GetInjuryNews.as_view() , name='injury') ,  
+    path('api/user-info', GetUserInfo.as_view() , name='userInfo') ,  
 ]
