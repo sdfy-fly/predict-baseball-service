@@ -20,11 +20,11 @@
 
     
 
-    <a href="https://sorare.com/oauth/authorize?client_id=4jCGKupPezkAn_E5YNeoO2o2r0kOYNU0Y1iXTStVgT8&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fapi%2Fauth&response_type=code&scope=" style="display: flex;"> ПОЛУЧИТЬ USER INFO (((ДЛЯ ТУПЫХ -> ВОЙТИ))))</a>
-    {{ code }}
+    <a href="https://sorare.com/oauth/authorize?client_id=4jCGKupPezkAn_E5YNeoO2o2r0kOYNU0Y1iXTStVgT8&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fapi%2Fauth&response_type=code&scope=" style="display: flex;"> ПОЛУЧИТЬ code </a>
+    
 
     <div style="display: flex;">
-        UserInfo : : {{userInfo}}
+        code : {{ code }}
     </div>
 
     <a href="{% url 'getCards' %}">Получить карточки</a>
@@ -34,15 +34,13 @@
     <p class="btn__schedule">Нажми чтобы получить расписание</p>
     <p class="block__injury" ></p>
 
-    <a href="https://api.sorare.com/oauth/token?client_id=4jCGKupPezkAn_E5YNeoO2o2r0kOYNU0Y1iXTStVgT8&client_secret=m2cDDwXlDngRVXmh_1eQoU55mC_vofh7Hy4p7htqlKQ&code=qL92GXo5SVuVOw9qorx_MrTg0toW3Vo_kAiW9T0spNI&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fapi%2Fauth">ссылка</a>
-    
     <script>
         
         fetch('http://127.0.0.1:8000/api/injury' , 
             {
                 method : 'POST' , 
                 headers : {'Accept': 'application/json', 'Content-Type': 'application/json'} , 
-                body : JSON.stringify({"date" : "2022-10-20" })
+                body : JSON.stringify({"date" : "2022-02-20" })
             }
         )
         .then(res => res.json()).then(res => document.querySelector('.block__injury').innerHTML = res['updatesHTML'])

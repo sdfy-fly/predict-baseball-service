@@ -1,5 +1,4 @@
 from django.shortcuts import render, redirect
-from rest_framework.permissions import AllowAny
 
 from .utils import *
 from .playersDetail import GetPlayersDetail
@@ -11,7 +10,7 @@ from asgiref.sync import sync_to_async, async_to_sync
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-from tempUtils import *
+from service.auth_sorare import AuthWithSorare
 
 
 async def index(request):
@@ -24,7 +23,6 @@ class Auth(APIView):
         В Post запросе принимаю email и password
         Возвращаю userInfo со всеми данными о юзере(Jwt, userId , nickname и тд)
     """
-    # permission_classes = [AllowAny]
 
     def get(self, request):
 
@@ -35,7 +33,6 @@ class Auth(APIView):
 
         # сохранить данные в бд
 
-        # return render(request, 'service/index.html', {'code': code, 'userInfo': userInfo})
         return redirect(f'http://localhost:3000?code={code}')
 
     def post(self, request):
@@ -62,26 +59,24 @@ class Auth(APIView):
 class GetUserInfo(APIView):
 
     def post(self, request):
-        code = request.data.get('code')
+
+        code = request.data.get('code')   
         userInfo : dict = self._auth(code)
 
         if not userInfo : 
             return Response(status=403)
-        
+
         return Response(userInfo)
 
     @async_to_sync
     async def _auth(self, code):
         try:
-            access_token = await tempUtils_getAccessToken(code)
-            userInfo = await tempUtils_getInfo(access_token)
-            user_ID_nickname = await tempUtils_getUserID(access_token)
-            userInfo['userID'] = user_ID_nickname['userID']
-            userInfo['nickname'] = user_ID_nickname['nickname']
-            userInfo['accessToken'] = access_token
+            userInfo = await AuthWithSorare().getUserInfo(code)
         except:
             return None
+
         return {'userInfo': userInfo}
+
 
 class UserCards(APIView):
 
