@@ -10,7 +10,7 @@ from asgiref.sync import sync_to_async, async_to_sync
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-from service.auth_sorare import AuthWithSorare
+from .auth_sorare import AuthWithSorare
 
 
 async def index(request):
@@ -84,14 +84,21 @@ class UserCards(APIView):
         x_algolia_api_key = request.data['x-algolia-api-key']
         x_algolia_application_id = request.data['x-algolia-application-id']
         userID = request.data['userID']
+        sport = request.data['sport']
 
-        cards = self.getCards(x_algolia_api_key, x_algolia_application_id, userID)
+        cards = self.getCards(sport,x_algolia_api_key, x_algolia_application_id, userID)
         return Response(cards)
 
     @async_to_sync
-    async def getCards(self, x_algolia_api_key, x_algolia_application_id, userID):
-        cardsID = await getCardsId(x_algolia_api_key, x_algolia_application_id, userID)
-        cards = await getUserCards(cardsID)
+    async def getCards(self,sport:str,x_algolia_api_key, x_algolia_application_id, userID):
+
+        cards = None
+        if sport.lower() == 'mba' :
+            cards = await MBACards().getCards(x_algolia_api_key, x_algolia_application_id, userID)
+
+        if sport.lower() == 'nba' :
+            cards = await NBACards().getCards(x_algolia_api_key, x_algolia_application_id, userID)
+
         return {'cards': cards}
 
 
