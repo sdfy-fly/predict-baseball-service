@@ -120,7 +120,8 @@ class PlayersDetail(APIView):
 
         if sport.lower() == 'mba' :
             gpd = MBADetail()
-
+ 
+ 
         elif sport.lower() == 'nba' :
             gpd = NbaDetail()
 
