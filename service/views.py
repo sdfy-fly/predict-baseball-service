@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect
 
 from .utils import *
-from .playersDetail import GetPlayersDetail
+from .playersDetail import MBADetail,NbaDetail
 from .schedule import *
+from .auth_sorare import AuthWithSorare
 
 from django.contrib.auth.models import User
 from asgiref.sync import sync_to_async, async_to_sync
@@ -10,7 +11,6 @@ from asgiref.sync import sync_to_async, async_to_sync
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-from .auth_sorare import AuthWithSorare
 
 
 async def index(request):
@@ -105,16 +105,25 @@ class UserCards(APIView):
 class PlayersDetail(APIView):
 
     def post(self, request):
+        
+        sport = request.data['sport']
 
-        data = self.getPlayersDetail()
+        data = self.getPlayersDetail(sport)
+
         if data:
             return Response(data)
 
         return Response(status=500)
 
     @async_to_sync
-    async def getPlayersDetail(self):
-        gpd = GetPlayersDetail()
+    async def getPlayersDetail(self,sport:str):
+
+        if sport.lower() == 'mba' :
+            gpd = MBADetail()
+
+        if sport.lower() == 'nba' :
+            gpd = NbaDetail()
+
         try:
             data = await gpd.getData()
             return data
