@@ -121,9 +121,11 @@ class PlayersDetail(APIView):
         if sport.lower() == 'mba' :
             gpd = MBADetail()
 
-        if sport.lower() == 'nba' :
+        elif sport.lower() == 'nba' :
             gpd = NbaDetail()
 
+        else : 
+            return None
         try:
             data = await gpd.getData()
             return data
