@@ -80,9 +80,8 @@ class MBACards:
             'x-algolia-application-id': algoliaApplicationId
         }
         body = {"requests":[{"indexName":"Card","params":f"highlightPreTag=%3Cais-highlight-0000000000%3E&highlightPostTag=%3C%2Fais-highlight-0000000000%3E&hitsPerPage=40&analyticsTags=%5B%22Gallery%22%5D&filters=sport%3Abaseball&distinct=true&attributesToRetrieve=%5B%22asset_id%22%5D&attributesToHighlight=none&maxValuesPerFacet=30&page=0&facets=%5B%22user.id%22%2C%22rarity%22%2C%22on_sale%22%2C%22position%22%2C%22grade%22%2C%22serial_number%22%2C%22team.long_name%22%2C%22player.display_name%22%2C%22player.birth_date_i%22%5D&tagFilters=&facetFilters=%5B%22user.id%3A{userID}%22%5D"}]}
-
         async with aiohttp.ClientSession() as session:
-            responce = await (await session.post(url, headers=headers, json=body)).json()
+            responce = await (await session.post(url, headers=headers, json=body, ssl=False)).json()
 
         cardsID = []
 
@@ -113,7 +112,7 @@ class MBACards:
         }
 
         async with aiohttp.ClientSession() as session:
-            cards = await session.post('https://api.sorare.com/sports/graphql', headers={'content-type': 'application/json'}, json=body)
+            cards = await session.post('https://api.sorare.com/sports/graphql', headers={'content-type': 'application/json'}, json=body, ssl=False)
             cards = (await cards.json())['data']
 
         return cards
@@ -141,7 +140,7 @@ class NBACards:
         body = {"requests":[{"indexName":"Card","params":f"analyticsTags=%5B%22Gallery%22%5D&attributesToHighlight=%5B%5D&distinct=false&facets=%5B%22rarity%22%2C%22nba_stats.ten_game_average%22%2C%22grade%22%2C%22serial_number%22%2C%22team.long_name%22%2C%22player.display_name%22%2C%22player.birth_date_i%22%5D&filters=user.id%3A{userID}%20AND%20sport%3Anba&highlightPostTag=__%2Fais-highlight__&highlightPreTag=__ais-highlight__&hitsPerPage=40&maxValuesPerFacet=10&page=0&query=&tagFilters="}]}
 
         async with aiohttp.ClientSession() as session:
-            responce = await (await session.post(url, headers=headers, json=body)).json()
+            responce = await (await session.post(url, headers=headers, json=body, ssl=False)).json()
 
         cardsID = []
 
@@ -172,7 +171,7 @@ class NBACards:
         }
 
         async with aiohttp.ClientSession() as session:
-            cards = await session.post('https://api.sorare.com/sports/graphql', headers={'content-type': 'application/json'}, json=body)
+            cards = await session.post('https://api.sorare.com/sports/graphql', headers={'content-type': 'application/json'},ssl=False, json=body)
             cards = (await cards.json())['data']
 
         return cards

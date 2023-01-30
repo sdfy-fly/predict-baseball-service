@@ -98,7 +98,6 @@ class UserCards(APIView):
 
         if sport.lower() == 'nba' :
             cards = await NBACards().getCards(x_algolia_api_key, x_algolia_application_id, userID)
-
         return {'cards': cards}
 
 
