@@ -120,7 +120,7 @@ class MBACards:
     async def getCards(self,x_algolia_api_key, x_algolia_application_id, userID):
         cardsID = await self.getCardsId(x_algolia_api_key, x_algolia_application_id, userID)
         cards = await self.getUserCards(cardsID)
-        return {'cards': cards}
+        return cards
 
 class NBACards:
 
@@ -179,4 +179,4 @@ class NBACards:
     async def getCards(self,x_algolia_api_key, x_algolia_application_id, userID):
         cardsID = await self.getCardsId(x_algolia_api_key, x_algolia_application_id, userID)
         cards = await self.getUserCards(cardsID)
-        return {'cards': cards}
+        return cards
