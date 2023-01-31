@@ -30,7 +30,7 @@ class MBADetail():
 
     async def get_data(self,session: aiohttp.ClientSession , url , index,d:str):
 
-        daily_data = await (await session.get(url=url)).json() 
+        daily_data = await (await session.get(url=url, ssl=False)).json()
 
         for player in daily_data : 
 
@@ -51,7 +51,7 @@ class MBADetail():
             daily_sum = round(sum(values_multiply),1)
 
             currentDate = weekDay(*list(map(int,d.split('-'))))
-            daily_object = {"match" : True,'dailySum' : daily_sum , 'numWeek': currentDate[0] , 'week' : currentDate[1], 'date' : d}
+            daily_object = {"match" : True,'sum' : daily_sum , 'week': currentDate[0] , 'date' : d}
 
             if self.players.get(player["player"]) : 
 
@@ -71,7 +71,7 @@ class MBADetail():
 
         tasks = []
         async with aiohttp.ClientSession() as session:
-            async with session.post('https://www.rotowire.com/users/login.php', data = AUTH) as r : 
+            async with session.post('https://www.rotowire.com/users/login.php', data = AUTH, ssl=False) as r :
 
                 await r.text()
                 # dates = ['2022-06-01','2022-06-02','2022-06-03','2022-06-04','2022-06-05','2022-06-06','2022-06-07']
@@ -97,7 +97,7 @@ class NbaDetail():
 
     async def get_data(self,session: aiohttp.ClientSession , url , index,d:str):
 
-        data = await (await session.get(url=url)).json() 
+        data = await (await session.get(url=url, ssl=False)).json()
 
         for player in data : 
 
@@ -109,7 +109,7 @@ class NbaDetail():
             daily_sum = round(sum(values_multiply),1)
 
             currentDate = weekDay(*list(map(int,d.split('-'))))
-            daily_object = {"match" : True,'dailySum' : daily_sum , 'numWeek': currentDate[0] , 'week' : currentDate[1], 'date' : d}
+            daily_object = {"match" : True,'sum' : daily_sum , 'week': currentDate[0], 'date' : d}
 
             if self.players.get(player["player"]) : 
                 
@@ -126,7 +126,7 @@ class NbaDetail():
     async def get_pages(self) : 
         tasks = []
         async with aiohttp.ClientSession() as session:
-            async with session.post('https://www.rotowire.com/users/login.php', data = AUTH) as r : 
+            async with session.post('https://www.rotowire.com/users/login.php', data = AUTH, ssl=False) as r :
 
                 await r.text()
 
