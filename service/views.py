@@ -29,11 +29,11 @@ class Auth(APIView):
         code = self.request.query_params.get('code', None)
 
         if not code:
-            return redirect('http://localhost:3000')
+            return redirect('http://sorareup.com')
 
         # сохранить данные в бд
 
-        return redirect(f'http://localhost:3000?code={code}')
+        return redirect(f'http://sorareup.com?code={code}')
 
     def post(self, request):
         email = request.data.get('email')
