@@ -83,7 +83,7 @@ class MBACards:
         async with aiohttp.ClientSession() as session:
             responce = await (await session.post(url, headers=headers, json=body, ssl=False)).json()
 
-        cardsID = []
+        cardsID = {'assetIds': [] , 'ids' : []}
 
         """
             проверка кода 200 , проверить если ли id, если нет то не вызывать getUserCards(cardsID)
@@ -91,11 +91,15 @@ class MBACards:
 
         for page in responce['results']:
             for id in page['hits']:
-                cardsID.append(id['objectID'][16:])
-
+                current_id = id['objectID'].split(':')[1:][0]
+                if 'assetId' in id['objectID'] : 
+                    cardsID['assetIds'].append(current_id)
+                else : 
+                    cardsID['ids'].append(current_id)
+                
         return cardsID
 
-    async def getUserCards(self,cardsID):
+    async def getUserCards(self,cardsID:dict):
         """
             Принимаю массив из id карточек, возвращаю объект со всей инфой по карточкам
         """
@@ -104,8 +108,8 @@ class MBACards:
             "operationName": "CardsByIdsQuery",
             "variables": {
                 "input": {
-                    "assetIds": [],
-                    "ids": cardsID
+                    "assetIds": cardsID['assetIds'],
+                    "ids": cardsID['ids']
                 }
             },
             "query": "query CardsByIdsQuery($input: BaseballCardsInput!) {\n  cards(input: $input) {\n    assetId\n    ...MobileCardDetailsByAssetId_card\n    ...CommonCardPreview_BaseballCard\n    ...Card_CardInterface\n    __typename\n  }\n}\n\nfragment Card_CardInterface on CardInterface {\n  id\n  slug\n  fullImageUrl\n  player {\n    slug\n    displayName\n    __typename\n  }\n  __typename\n}\n\nfragment CommonCardPreview_BaseballCard on BaseballCard {\n  id\n  ...CardProperties_BaseballCard\n  ...CommonCardPreview_CardInterface\n  __typename\n}\n\nfragment CardProperties_BaseballCard on BaseballCard {\n  id\n  assetId\n  totalBonus\n  player {\n    currentSeasonAverageScore {\n      pitching\n      batting\n      __typename\n    }\n    __typename\n  }\n  __typename\n}\n\nfragment CommonCardPreview_CardInterface on CardInterface {\n  id\n  ...ClickableCard_CardInterface\n  ...CardDescription_CardInterface\n  __typename\n}\n\nfragment ClickableCard_CardInterface on CardInterface {\n  ...Card_CardInterface\n  __typename\n}\n\nfragment CardDescription_CardInterface on CardInterface {\n  id\n  assetId\n  season\n  rarity\n  player {\n    slug\n    displayName\n    __typename\n  }\n  __typename\n}\n\nfragment MobileCardDetailsByAssetId_card on BaseballCard {\n  id\n  positions\n  __typename\n}\n"
@@ -142,7 +146,7 @@ class NBACards:
         async with aiohttp.ClientSession() as session:
             responce = await (await session.post(url, headers=headers, json=body, ssl=False)).json()
 
-        cardsID = []
+        cardsID = {'assetIds': [] , 'ids' : []}
 
         """
             проверка кода 200 , проверить если ли id, если нет то не вызывать getUserCards(cardsID)
@@ -150,9 +154,14 @@ class NBACards:
 
         for page in responce['results']:
             for id in page['hits']:
-                cardsID.append(id['objectID'][16:])
-
+                current_id = id['objectID'].split(':')[1:][0]
+                if 'assetId' in id['objectID'] : 
+                    cardsID['assetIds'].append(current_id)
+                else : 
+                    cardsID['ids'].append(current_id)
+                
         return cardsID
+
 
     async def getUserCards(self,cardsID):
         """
@@ -163,8 +172,8 @@ class NBACards:
             "operationName": "NBACardsByIdsQuery",
             "variables": {
                 "input": {
-                    "assetIds": [],
-                    "ids": cardsID
+                    "assetIds": cardsID['assetIds'],
+                    "ids": cardsID['ids']
                 }
             },
             "query": "query NBACardsByIdsQuery($input: NBACardsInput!) {\n  nbaCards(input: $input) {\n    assetId\n    ...NBAMobileCardDetailsByAssetId_card\n    ...NBACommonCardPreview_NBACard\n    __typename\n  }\n}\n\nfragment NBACommonCardPreview_NBACard on NBACard {\n  id\n  ...NBACardProperties_NBACard\n  ...CommonCardPreview_CardInterface\n  __typename\n}\n\nfragment NBACardProperties_NBACard on NBACard {\n  id\n  assetId\n  totalBonus\n  seasonBonus\n  rarityBonus\n  xpBonus\n  bonusLossAfterTransfer\n  player {\n    tenGameAverage\n    ...IneligibleIndicator_NBAPlayer\n    __typename\n  }\n  __typename\n}\n\nfragment IneligibleIndicator_NBAPlayer on NBAPlayer {\n  slug\n  isActive\n  __typename\n}\n\nfragment CommonCardPreview_CardInterface on CardInterface {\n  id\n  ...ClickableCard_CardInterface\n  ...CardDescription_CardInterface\n  __typename\n}\n\nfragment ClickableCard_CardInterface on CardInterface {\n  ...Card_CardInterface\n  __typename\n}\n\nfragment Card_CardInterface on CardInterface {\n  id\n  slug\n  player {\n    slug\n    displayName\n    __typename\n  }\n  ...Card_CardParam\n  __typename\n}\n\nfragment Card_CardParam on CardInterface {\n  fullImageUrl\n  player {\n    displayName\n    __typename\n  }\n  __typename\n}\n\nfragment CardDescription_CardInterface on CardInterface {\n  id\n  assetId\n  season\n  rarity\n  player {\n    slug\n    displayName\n    __typename\n  }\n  __typename\n}\n\nfragment NBAMobileCardDetailsByAssetId_card on NBACard {\n  id\n  slug\n  positions\n  __typename\n}\n"
