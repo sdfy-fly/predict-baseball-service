@@ -12,7 +12,7 @@ class AuthWithSorare:
             "client_secret": "m2cDDwXlDngRVXmh_1eQoU55mC_vofh7Hy4p7htqlKQ",
             "code": code,
             "grant_type": "authorization_code",
-            "redirect_uri": "http://localhost:8000/api/auth"
+            "redirect_uri": "https://sorareup.com/api/auth"
         }
 
         async with aiohttp.ClientSession() as session:
