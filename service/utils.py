@@ -136,7 +136,8 @@ class MBACards:
         await self.getCardsId(x_algolia_api_key, x_algolia_application_id, userID)
         cards = []
 
-        for i in range( 0 , len(self.cardsID['assetIds']) , 40):
+        countCards = max(len(self.cardsID['assetIds']),len(self.cardsID['ids']))
+        for i in range( 0 , countCards , 40):
             currentCards = await self.getUserCards( self.cardsID['assetIds'][i:i+40] , self.cardsID['ids'][i:i+40])
             cards += currentCards['cards']
 
@@ -215,8 +216,9 @@ class NBACards:
         await self.getCardsId(x_algolia_api_key, x_algolia_application_id, userID)
         cards = []
 
-        for i in range( 0 , len(self.cardsID['assetIds']) , 40):
+        countCards = max(len(self.cardsID['assetIds']),len(self.cardsID['ids']))
+        for i in range( 0 , countCards , 40):
             currentCards = await self.getUserCards( self.cardsID['assetIds'][i:i+40] , self.cardsID['ids'][i:i+40])
             cards += currentCards['nbaCards']
 
-        return {"cards" : cards}
+        return {"nbaCards" : cards}
