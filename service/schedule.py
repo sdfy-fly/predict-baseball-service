@@ -46,10 +46,13 @@ async def getSchedule():
         return res[1:]
 
 
-async def getInjuryNews(date):
+async def getInjuryNews(date,sport:str):
     """ принимаю дату в формате 2022-10-18"""
 
-    url = f"https://www.rotowire.com/baseball/ajax/get-more-updates.php?type=custom&itemID=custom&lastUpdateTime={date}%2008%3A39%3A56.117&numUpdates=25&injuries=all"
+    if sport.lower() == 'mba':
+        url = f"https://www.rotowire.com/baseball/ajax/get-more-updates.php?type=custom&itemID=custom&lastUpdateTime={date}%2008%3A39%3A56.117&numUpdates=25&injuries=all"
+    elif sport.lower() == 'nba':
+        url = f"https://www.rotowire.com/basketball/ajax/get-more-updates.php?type=custom&itemID=custom&lastUpdateTime={date}%2008%3A39%3A56.117&numUpdates=25&injuries=all"
 
     async with aiohttp.ClientSession() as session:
         async with session.post(url=url) as response:

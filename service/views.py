@@ -147,16 +147,16 @@ class GetSchesule(APIView):
 class GetInjuryNews(APIView):
 
     def post(self, request):
-        data = self.getData(request.data['date'])
+        data = self.getData(request.data['date'],request.data['sport'])
         if data:
             return Response(data)
         else:
             return Response(status=500)
 
     @async_to_sync
-    async def getData(self, date):
+    async def getData(self, date,sport):
 
         try:
-            return await getInjuryNews(date)
+            return await getInjuryNews(date,sport)
         except:
             return None
