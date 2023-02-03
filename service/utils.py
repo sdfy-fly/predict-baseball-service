@@ -140,7 +140,7 @@ class MBACards:
             currentCards = await self.getUserCards( self.cardsID['assetIds'][i:i+40] , self.cardsID['ids'][i:i+40])
             cards += currentCards['cards']
 
-        return cards
+        return {"cards" : cards} 
 
 
 class NBACards:
@@ -217,6 +217,6 @@ class NBACards:
 
         for i in range( 0 , len(self.cardsID['assetIds']) , 40):
             currentCards = await self.getUserCards( self.cardsID['assetIds'][i:i+40] , self.cardsID['ids'][i:i+40])
-            cards += currentCards['cards']
+            cards += currentCards['nbaCards']
 
-        return cards
+        return {"cards" : cards}
