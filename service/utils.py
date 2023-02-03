@@ -110,7 +110,7 @@ class MBACards:
                 
         return self.cardsID
 
-    async def getUserCards(self,cardsID:dict):
+    async def getUserCards(self,assetIds,ids):
         """
             Принимаю массив из id карточек, возвращаю объект со всей инфой по карточкам
         """
@@ -119,8 +119,8 @@ class MBACards:
             "operationName": "CardsByIdsQuery",
             "variables": {
                 "input": {
-                    "assetIds": cardsID['assetIds'],
-                    "ids": cardsID['ids']
+                    "assetIds": assetIds,
+                    "ids": ids
                 }
             },
             "query": "query CardsByIdsQuery($input: BaseballCardsInput!) {\n  cards(input: $input) {\n    assetId\n    ...MobileCardDetailsByAssetId_card\n    ...CommonCardPreview_BaseballCard\n    ...Card_CardInterface\n    __typename\n  }\n}\n\nfragment Card_CardInterface on CardInterface {\n  id\n  slug\n  fullImageUrl\n  player {\n    slug\n    displayName\n    __typename\n  }\n  __typename\n}\n\nfragment CommonCardPreview_BaseballCard on BaseballCard {\n  id\n  ...CardProperties_BaseballCard\n  ...CommonCardPreview_CardInterface\n  __typename\n}\n\nfragment CardProperties_BaseballCard on BaseballCard {\n  id\n  assetId\n  totalBonus\n  player {\n    currentSeasonAverageScore {\n      pitching\n      batting\n      __typename\n    }\n    __typename\n  }\n  __typename\n}\n\nfragment CommonCardPreview_CardInterface on CardInterface {\n  id\n  ...ClickableCard_CardInterface\n  ...CardDescription_CardInterface\n  __typename\n}\n\nfragment ClickableCard_CardInterface on CardInterface {\n  ...Card_CardInterface\n  __typename\n}\n\nfragment CardDescription_CardInterface on CardInterface {\n  id\n  assetId\n  season\n  rarity\n  player {\n    slug\n    displayName\n    __typename\n  }\n  __typename\n}\n\nfragment MobileCardDetailsByAssetId_card on BaseballCard {\n  id\n  positions\n  __typename\n}\n"
@@ -133,8 +133,13 @@ class MBACards:
         return cards
 
     async def getCards(self,x_algolia_api_key, x_algolia_application_id, userID):
-        cardsID = await self.getCardsId(x_algolia_api_key, x_algolia_application_id, userID)
-        cards = await self.getUserCards(cardsID)
+        await self.getCardsId(x_algolia_api_key, x_algolia_application_id, userID)
+        cards = []
+
+        for i in range( 0 , len(self.cardsID['assetIds']) , 40):
+            currentCards = await self.getUserCards( self.cardsID['assetIds'][i:i+40] , self.cardsID['ids'][i:i+40])
+            cards += currentCards['cards']
+
         return cards
 
 
@@ -184,8 +189,7 @@ class NBACards:
                 
         return self.cardsID
 
-
-    async def getUserCards(self,cardsID):
+    async def getUserCards(self,assetIds,ids):
         """
             Принимаю массив из id карточек, возвращаю объект со всей инфой по карточкам
         """
@@ -194,8 +198,8 @@ class NBACards:
             "operationName": "NBACardsByIdsQuery",
             "variables": {
                 "input": {
-                    "assetIds": cardsID['assetIds'],
-                    "ids": cardsID['ids']
+                    "assetIds": assetIds,
+                    "ids": ids
                 }
             },
             "query": "query NBACardsByIdsQuery($input: NBACardsInput!) {\n  nbaCards(input: $input) {\n    assetId\n    ...NBAMobileCardDetailsByAssetId_card\n    ...NBACommonCardPreview_NBACard\n    __typename\n  }\n}\n\nfragment NBACommonCardPreview_NBACard on NBACard {\n  id\n  ...NBACardProperties_NBACard\n  ...CommonCardPreview_CardInterface\n  __typename\n}\n\nfragment NBACardProperties_NBACard on NBACard {\n  id\n  assetId\n  totalBonus\n  seasonBonus\n  rarityBonus\n  xpBonus\n  bonusLossAfterTransfer\n  player {\n    tenGameAverage\n    ...IneligibleIndicator_NBAPlayer\n    __typename\n  }\n  __typename\n}\n\nfragment IneligibleIndicator_NBAPlayer on NBAPlayer {\n  slug\n  isActive\n  __typename\n}\n\nfragment CommonCardPreview_CardInterface on CardInterface {\n  id\n  ...ClickableCard_CardInterface\n  ...CardDescription_CardInterface\n  __typename\n}\n\nfragment ClickableCard_CardInterface on CardInterface {\n  ...Card_CardInterface\n  __typename\n}\n\nfragment Card_CardInterface on CardInterface {\n  id\n  slug\n  player {\n    slug\n    displayName\n    __typename\n  }\n  ...Card_CardParam\n  __typename\n}\n\nfragment Card_CardParam on CardInterface {\n  fullImageUrl\n  player {\n    displayName\n    __typename\n  }\n  __typename\n}\n\nfragment CardDescription_CardInterface on CardInterface {\n  id\n  assetId\n  season\n  rarity\n  player {\n    slug\n    displayName\n    __typename\n  }\n  __typename\n}\n\nfragment NBAMobileCardDetailsByAssetId_card on NBACard {\n  id\n  slug\n  positions\n  __typename\n}\n"
@@ -204,10 +208,15 @@ class NBACards:
         async with aiohttp.ClientSession() as session:
             cards = await session.post('https://api.sorare.com/sports/graphql', headers={'content-type': 'application/json'},ssl=False, json=body)
             cards = (await cards.json())['data']
-
         return cards
 
     async def getCards(self,x_algolia_api_key, x_algolia_application_id, userID):
-        cardsID = await self.getCardsId(x_algolia_api_key, x_algolia_application_id, userID)
-        cards = await self.getUserCards(cardsID)
+        
+        await self.getCardsId(x_algolia_api_key, x_algolia_application_id, userID)
+        cards = []
+
+        for i in range( 0 , len(self.cardsID['assetIds']) , 40):
+            currentCards = await self.getUserCards( self.cardsID['assetIds'][i:i+40] , self.cardsID['ids'][i:i+40])
+            cards += currentCards['cards']
+
         return cards
