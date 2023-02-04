@@ -66,16 +66,17 @@ async def getInfo(JWT):
 
 class MBACards:
 
-    cardsID = {'assetIds': [] , 'ids' : []}
-
     async def _gettingCardsId(self,responce:dict):
+        cards = {'assetIds': [] , 'ids' : []}
         for page in responce['results']:
             for id in page['hits']:
                 current_id = id['objectID'].split(':')[1:][0]
                 if 'assetId' in id['objectID'] : 
-                    self.cardsID['assetIds'].append(current_id)
+                    cards['assetIds'].append(current_id)
                 else : 
-                    self.cardsID['ids'].append(current_id)
+                    cards['ids'].append(current_id)
+        return cards
+
 
     async def getCardsId(self,algoliaApiKey, algoliaApplicationId, userID):
 
@@ -96,9 +97,9 @@ class MBACards:
         async with aiohttp.ClientSession() as session:
             responce = await (await session.post(url, headers=headers, json=body, ssl=False)).json()
 
-        await self._gettingCardsId(responce)
-        PAGINATION = responce['results'][0]['nbPages']
+        cards = await self._gettingCardsId(responce)
 
+        PAGINATION = responce['results'][0]['nbPages']
         for page in range(1 , PAGINATION):
             
             loop_body = {"requests":[{"indexName":"Card","params":f"highlightPreTag=%3Cais-highlight-0000000000%3E&highlightPostTag=%3C%2Fais-highlight-0000000000%3E&hitsPerPage=40&analyticsTags=%5B%22Gallery%22%5D&filters=sport%3Abaseball&distinct=true&attributesToRetrieve=%5B%22asset_id%22%5D&attributesToHighlight=none&maxValuesPerFacet=30&page={page}&facets=%5B%22user.id%22%2C%22rarity%22%2C%22on_sale%22%2C%22position%22%2C%22grade%22%2C%22serial_number%22%2C%22team.long_name%22%2C%22player.display_name%22%2C%22player.birth_date_i%22%5D&tagFilters=&facetFilters=%5B%22user.id%3A{userID}%22%5D"}]}
@@ -106,11 +107,14 @@ class MBACards:
             async with aiohttp.ClientSession() as session:
                 loop_responce = await (await session.post(url, headers=headers, json=loop_body, ssl=False)).json()
             
-            await self._gettingCardsId(loop_responce)
+            current_cards = await self._gettingCardsId(loop_responce)
+            cards['assetIds'] += current_cards['assetIds']
+            cards['ids'] += current_cards['ids']
                 
-        return self.cardsID
+        return cards
 
-    async def getUserCards(self,assetIds,ids):
+
+    async def getUserCards(self,assetIds:list,ids:list):
         """
             Принимаю массив из id карточек, возвращаю объект со всей инфой по карточкам
         """
@@ -133,12 +137,12 @@ class MBACards:
         return cards
 
     async def getCards(self,x_algolia_api_key, x_algolia_application_id, userID):
-        await self.getCardsId(x_algolia_api_key, x_algolia_application_id, userID)
+        cardsID = await self.getCardsId(x_algolia_api_key, x_algolia_application_id, userID)
         cards = []
 
-        countCards = max(len(self.cardsID['assetIds']),len(self.cardsID['ids']))
+        countCards = max(len(cardsID['assetIds']),len(cardsID['ids']))
         for i in range( 0 , countCards , 40):
-            currentCards = await self.getUserCards( self.cardsID['assetIds'][i:i+40] , self.cardsID['ids'][i:i+40])
+            currentCards = await self.getUserCards( cardsID['assetIds'][i:i+40] , cardsID['ids'][i:i+40])
             cards += currentCards['cards']
 
         return {"cards" : cards} 
@@ -146,16 +150,17 @@ class MBACards:
 
 class NBACards:
 
-    cardsID = {'assetIds': [] , 'ids' : []}
-
     async def _gettingCardsId(self,responce:dict):
+        cards = {'assetIds': [] , 'ids' : []}
         for page in responce['results']:
             for id in page['hits']:
                 current_id = id['objectID'].split(':')[1:][0]
                 if 'assetId' in id['objectID'] : 
-                    self.cardsID['assetIds'].append(current_id)
+                    cards['assetIds'].append(current_id)
                 else : 
-                    self.cardsID['ids'].append(current_id)
+                    cards['ids'].append(current_id)
+        return cards
+
 
     async def getCardsId(self,algoliaApiKey, algoliaApplicationId, userID):
 
@@ -176,9 +181,9 @@ class NBACards:
         async with aiohttp.ClientSession() as session:
             responce = await (await session.post(url, headers=headers, json=body, ssl=False)).json()
 
-        await self._gettingCardsId(responce)
+        cards = await self._gettingCardsId(responce)
+
         PAGINATION = responce['results'][0]['nbPages']
-        
         for page in range(1 , PAGINATION):
             
             loop_body = {"requests":[{"indexName":"Card","params":f"analyticsTags=%5B%22Gallery%22%5D&attributesToHighlight=%5B%5D&distinct=false&facets=%5B%22rarity%22%2C%22nba_stats.ten_game_average%22%2C%22grade%22%2C%22serial_number%22%2C%22team.long_name%22%2C%22player.display_name%22%2C%22player.birth_date_i%22%5D&filters=user.id%3A{userID}%20AND%20sport%3Anba&highlightPostTag=__%2Fais-highlight__&highlightPreTag=__ais-highlight__&hitsPerPage=40&maxValuesPerFacet=10&page={page}&query=&tagFilters="}]}
@@ -186,11 +191,14 @@ class NBACards:
             async with aiohttp.ClientSession() as session:
                 loop_responce = await (await session.post(url, headers=headers, json=loop_body, ssl=False)).json()
             
-            await self._gettingCardsId(loop_responce)
+            current_cards = await self._gettingCardsId(loop_responce)
+            cards['assetIds'] += current_cards['assetIds']
+            cards['ids'] += current_cards['ids']
                 
-        return self.cardsID
+        return cards
 
-    async def getUserCards(self,assetIds,ids):
+
+    async def getUserCards(self, assetIds:list, ids:list):
         """
             Принимаю массив из id карточек, возвращаю объект со всей инфой по карточкам
         """
@@ -209,16 +217,18 @@ class NBACards:
         async with aiohttp.ClientSession() as session:
             cards = await session.post('https://api.sorare.com/sports/graphql', headers={'content-type': 'application/json'},ssl=False, json=body)
             cards = (await cards.json())['data']
+
         return cards
+
 
     async def getCards(self,x_algolia_api_key, x_algolia_application_id, userID):
         
-        await self.getCardsId(x_algolia_api_key, x_algolia_application_id, userID)
+        cardsID = await self.getCardsId(x_algolia_api_key, x_algolia_application_id, userID)
         cards = []
 
-        countCards = max(len(self.cardsID['assetIds']),len(self.cardsID['ids']))
+        countCards = max(len(cardsID['assetIds']),len(cardsID['ids']))
         for i in range( 0 , countCards , 40):
-            currentCards = await self.getUserCards( self.cardsID['assetIds'][i:i+40] , self.cardsID['ids'][i:i+40])
+            currentCards = await self.getUserCards( cardsID['assetIds'][i:i+40] , cardsID['ids'][i:i+40])
             cards += currentCards['nbaCards']
 
         return {"nbaCards" : cards}
