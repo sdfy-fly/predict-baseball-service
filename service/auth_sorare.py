@@ -87,3 +87,14 @@ class AuthWithSorare:
         userInfo['accessToken'] = access_token
 
         return userInfo
+
+if __name__ == "__main__":
+
+    import asyncio
+
+    async def main():
+
+        obj = AuthWithSorare()
+        print(await obj.getUserInfo("oLvwB3-MJOkGy5ArUB6Rbg8OPoR_aq4fZ_-Nv0-3qDU"))
+
+    asyncio.run(main())
