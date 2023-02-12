@@ -122,12 +122,10 @@ class MBACards:
         body = {
             "operationName": "CardsByIdsQuery",
             "variables": {
-                "input": {
-                    "assetIds": assetIds,
-                    "ids": ids
-                }
+                "assetIds": assetIds,
+                "ids": ids
             },
-            "query": "query CardsByIdsQuery($input: BaseballCardsInput!) {\n  cards(input: $input) {\n    assetId\n    ...MobileCardDetailsByAssetId_card\n    ...CommonCardPreview_BaseballCard\n    ...Card_CardInterface\n    __typename\n  }\n}\n\nfragment Card_CardInterface on CardInterface {\n  id\n  slug\n  fullImageUrl\n  player {\n    slug\n    displayName\n    __typename\n  }\n  __typename\n}\n\nfragment CommonCardPreview_BaseballCard on BaseballCard {\n  id\n  ...CardProperties_BaseballCard\n  ...CommonCardPreview_CardInterface\n  __typename\n}\n\nfragment CardProperties_BaseballCard on BaseballCard {\n  id\n  assetId\n  totalBonus\n  player {\n    currentSeasonAverageScore {\n      pitching\n      batting\n      __typename\n    }\n    __typename\n  }\n  __typename\n}\n\nfragment CommonCardPreview_CardInterface on CardInterface {\n  id\n  ...ClickableCard_CardInterface\n  ...CardDescription_CardInterface\n  __typename\n}\n\nfragment ClickableCard_CardInterface on CardInterface {\n  ...Card_CardInterface\n  __typename\n}\n\nfragment CardDescription_CardInterface on CardInterface {\n  id\n  assetId\n  season\n  rarity\n  player {\n    slug\n    displayName\n    __typename\n  }\n  __typename\n}\n\nfragment MobileCardDetailsByAssetId_card on BaseballCard {\n  id\n  positions\n  __typename\n}\n"
+            "query": "query CardsByIdsQuery($assetIds: [String!]!, $ids: [String!]!) {\n  baseballCards(assetIds: $assetIds, ids: $ids) {\n    id\n    slug\n    assetId\n    ...MobileCardDetailsByAssetId_card\n    ...CommonCardPreview_BaseballCard\n    __typename\n  }\n}\n\nfragment CommonCardPreview_BaseballCard on BaseballCard {\n  id\n  slug\n  ...CardProperties_BaseballCard\n  ...CommonCardPreview_CardInterface\n  __typename\n}\n\nfragment CardProperties_BaseballCard on BaseballCard {\n  id\n  slug\n  assetId\n  totalBonus\n  seasonBonus\n  rarityBonus\n  xpBonus\n  bonusLossAfterTransfer\n  player {\n    slug\n    currentSeasonAverageScore {\n      pitching\n      batting\n      __typename\n    }\n    last15AverageScore {\n      pitching\n      batting\n      __typename\n    }\n    __typename\n  }\n  __typename\n}\n\nfragment CommonCardPreview_CardInterface on CardInterface {\n  id\n  slug\n  ...ClickableCard_CardInterface\n  ...CardDescription_CardInterface\n  __typename\n}\n\nfragment ClickableCard_CardInterface on CardInterface {\n  slug\n  ...Card_CardInterface\n  __typename\n}\n\nfragment Card_CardInterface on CardInterface {\n  id\n  slug\n  fullImageUrl\n  player {\n    slug\n    displayName\n    __typename\n  }\n  __typename\n}\n\nfragment CardDescription_CardInterface on CardInterface {\n  id\n  slug\n  assetId\n  season\n  rarity\n  player {\n    slug\n    displayName\n    __typename\n  }\n  __typename\n}\n\nfragment MobileCardDetailsByAssetId_card on BaseballCard {\n  id\n  slug\n  positions\n  __typename\n}\n"
         }
 
         async with aiohttp.ClientSession() as session:
@@ -143,7 +141,7 @@ class MBACards:
         countCards = max(len(cardsID['assetIds']),len(cardsID['ids']))
         for i in range( 0 , countCards , 40):
             currentCards = await self.getUserCards( cardsID['assetIds'][i:i+40] , cardsID['ids'][i:i+40])
-            cards += currentCards['cards']
+            cards += currentCards['baseballCards']
 
         return {"cards" : cards} 
 
@@ -232,3 +230,14 @@ class NBACards:
             cards += currentCards['nbaCards']
 
         return {"nbaCards" : cards}
+
+if __name__ == '__main__' :
+
+    import asyncio
+
+    async def main():
+
+        obj = MBACards()
+        print(await obj.getCards("4efd78ac67e55d3f6f37e7ebcd2295d8","7Z0Z8PASDY","2bfbaea5-b6ed-42c5-aa5a-21b87f9f2e22"))
+
+    asyncio.run(main())
