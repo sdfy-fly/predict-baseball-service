@@ -5,7 +5,8 @@ from .playersDetail import MBADetail,NbaDetail
 from .schedule import *
 from .auth_sorare import AuthWithSorare
 
-from django.contrib.auth.models import User
+from .models import Users
+import datetime
 from asgiref.sync import sync_to_async, async_to_sync
 
 from rest_framework.views import APIView
@@ -30,8 +31,6 @@ class Auth(APIView):
 
         if not code:
             return redirect('http://sorareup.com')
-
-        # сохранить данные в бд
 
         return redirect(f'http://sorareup.com?code={code}')
 
@@ -71,7 +70,17 @@ class GetUserInfo(APIView):
     @async_to_sync
     async def _auth(self, code):
         try:
+
             userInfo = await AuthWithSorare().getUserInfo(code)
+
+            user, status = await Users.objects.aget_or_create(
+                nickname = userInfo['nickname'] , 
+                user_id = userInfo['userID'] , 
+                defaults={'last_visit':datetime.datetime.now()}
+            )
+            if (not status):
+                await sync_to_async(user.save)()
+            
         except:
             return None
 
@@ -120,12 +129,9 @@ class PlayersDetail(APIView):
         if sport.lower() == 'mba' :
             gpd = MBADetail()
  
- 
         elif sport.lower() == 'nba' :
             gpd = NbaDetail()
 
-        else : 
-            return None
         try:
             data = await gpd.getData()
             return data
