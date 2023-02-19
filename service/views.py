@@ -4,6 +4,7 @@ from .utils import *
 from .playersDetail import MBADetail,NbaDetail
 from .schedule import *
 from .auth_sorare import AuthWithSorare
+from .paymentUrl import createPaymentUrl
 
 from .models import Users
 import datetime
@@ -11,7 +12,6 @@ from asgiref.sync import sync_to_async, async_to_sync
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
-
 
 
 async def index(request):
@@ -79,7 +79,10 @@ class GetUserInfo(APIView):
                 defaults={'last_visit':datetime.datetime.now()}
             )
             if (not status):
+                userInfo["subscription_date"] = user.subscription_date
                 await sync_to_async(user.save)()
+            else : 
+                userInfo["subscription_date"] = datetime.datetime.today() + datetime.timedelta(weeks=4*5)
             
         except:
             return None
@@ -166,3 +169,31 @@ class GetInjuryNews(APIView):
             return await getInjuryNews(date,sport)
         except:
             return None
+
+class CreatePaymentUrl(APIView):
+
+    """
+        Принимаю userId пользователя и сумму к оплате
+        Создаю платеж и возвращаю ссылку для оплаты
+    """
+
+    def post(self,request):
+        
+        userID = request.data['userID']
+        amount = request.data['amount']
+
+        paymentUrl = self.getPaymentUrl(userID, amount)
+
+        if paymentUrl:
+            return Response(paymentUrl)
+        else:
+            return Response(status=500)
+
+    @async_to_sync
+    async def getPaymentUrl(self, userID, amount):
+        
+        try: 
+            return await createPaymentUrl(amount , userID)
+        except:
+            return None
+        

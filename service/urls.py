@@ -1,6 +1,6 @@
 from django.urls import path 
 
-from .views import index,Auth, UserCards, PlayersDetail , GetSchesule, GetInjuryNews, GetUserInfo
+from .views import index,Auth, UserCards, PlayersDetail , GetSchesule, GetInjuryNews, GetUserInfo, CreatePaymentUrl
 
 
 urlpatterns = [
@@ -11,4 +11,5 @@ urlpatterns = [
     path('api/schedule', GetSchesule.as_view() , name='schedule') ,  
     path('api/injury', GetInjuryNews.as_view() , name='injury') ,  
     path('api/user-info', GetUserInfo.as_view() , name='userInfo') ,  
+    path('api/invoice/create', CreatePaymentUrl.as_view() , name='create-payment') ,  
 ]
