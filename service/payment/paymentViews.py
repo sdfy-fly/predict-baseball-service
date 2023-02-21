@@ -19,9 +19,9 @@ class CreatePaymentUrl(APIView):
         
         userID = request.data['userID']
         amount = request.data['amount']
-        subscritionRange = request.data['subscritionRange']
+        subscriptionRange = request.data['subscriptionRange']
 
-        order_id = f"{userID};{subscritionRange}"
+        order_id = f"{userID};{subscriptionRange}"
 
         paymentUrl = self.getPaymentUrl(order_id, amount)
 
@@ -35,7 +35,8 @@ class CreatePaymentUrl(APIView):
         
         try: 
             return await createPaymentUrl(userID=order_id, amount=amount)
-        except:
+        except Exception as _ex:
+            print(_ex)
             return None
 
 

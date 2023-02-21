@@ -2,10 +2,11 @@ import datetime
 
 from django.shortcuts import render, redirect
 
-from service.payment.paymentViews import CreatePaymentUrl, PaymentHandler
-from service.sorareCards.cardViews import UserCards
-from service.schedule.scheduleViews import GetSchesule , GetInjuryNews
-from service.playerDetails.playerDetailsViews import PlayersDetail
+
+from .payment.paymentViews import CreatePaymentUrl, PaymentHandler
+from .sorareCards.cardViews import UserCards 
+from .schedule.scheduleViews import GetSchesule , GetInjuryNews
+from .playerDetails.playerDetailsViews import PlayersDetail
 
 from .auth_sorare import AuthWithSorare
 

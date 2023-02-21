@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from asgiref.sync import async_to_sync
 
-from .getPlayersDetail import MBADetail, NbaDetail
+from .playersDetail import MBADetail, NbaDetail
 
 class PlayersDetail(APIView):
 
