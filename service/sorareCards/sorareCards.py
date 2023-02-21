@@ -1,68 +1,4 @@
 import aiohttp
-import bcrypt
-
-"""
-    Обернуть функции в блок Try и подумать над кодами возврата, чтобы на фронтеде отображалась ошибка
-"""
-
-
-async def getJWT(email, password):
-
-    """
-        Принимаю: логин и пароль
-        Возвращаю: JWT token
-    """
-
-    try:
-        async with aiohttp.ClientSession() as session:
-            salt = (await (await session.get(f'https://api.sorare.com/api/v1/users/{email}')).json()).get('salt')
-            passwordHash = bcrypt.hashpw(
-                bytes(password, 'utf-8'), bytes(salt, 'utf-8'))
-            responce = await session.post('https://api.sorare.com/graphql',
-                headers={
-                        'content-type': 'application/json', },
-                json={
-                    "operationName": "SignInMutation",
-                    "variables": {"input": {"email": email, "password": passwordHash.decode()}},
-                    "query": "mutation SignInMutation($input: signInInput!) { signIn(input: $input) { currentUser { slug jwtToken(aud: \"<YourAud>\") { token expiredAt } } errors { message } } }",
-                    "data": {"signIn": {"currentUser": {"slug": "<YourSlug>", "jwtToken": {"token": "<YourJWTToken>", "expiredAt": "..."}}, "errors": []}}})
-            JWTtoken = (await responce.json()).get('data').get('signIn').get('currentUser').get('jwtToken').get('token')
-            return JWTtoken
-    except:
-        return 'Неправильный логин или пароль'
-
-
-async def getInfo(JWT):
-
-    """
-        Принимаю: JWT токен,
-        Возвращаю словарь : JWT, userID , nickname , algoliaApiKey, algoliaAppicationID
-    """
-
-    headers = {
-        'content-type': 'application/json',
-        'Authorization': f'Bearer {JWT}',
-        'JWT-AUD': '<YourAud>'
-    }
-
-    data = {
-        "operationName": "ConfigQuery",
-        "variables": {},
-        "extensions": {
-            "operationId": "React/79f363dbf0a16f25b7c4c916862fd82df2749c720ab0d54464f4d5a2f46488d0"
-        }
-    }
-    async with aiohttp.ClientSession() as session:
-        responce = (await (await session.post('https://api.sorare.com/graphql', headers=headers, json=data)).json())['data']
-
-    userId = responce['currentUser']['id'][5:]
-    nickname = responce['currentUser']['nickname']
-
-    algoliaApiKey = responce['config']["algoliaSearchApiKey"]
-    algoliaApplicationId = responce['config']["algoliaApplicationId"]
-
-    return {'JWT': JWT, 'userID': userId, 'nickname': nickname, 'x-algolia-application-id': algoliaApplicationId, 'x-algolia-api-key': algoliaApiKey}
-
 
 class MBACards:
 
@@ -230,14 +166,3 @@ class NBACards:
             cards += currentCards['nbaCards']
 
         return {"nbaCards" : cards}
-
-if __name__ == '__main__' :
-
-    import asyncio
-
-    async def main():
-
-        obj = MBACards()
-        print(await obj.getCards("4efd78ac67e55d3f6f37e7ebcd2295d8","7Z0Z8PASDY","2bfbaea5-b6ed-42c5-aa5a-21b87f9f2e22"))
-
-    asyncio.run(main())
