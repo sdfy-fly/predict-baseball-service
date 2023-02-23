@@ -9,7 +9,7 @@ async def createPaymentUrl(userID:str, amount:float):
     body = {
         "amount" : amount,
         "shop_id" : "gQ4diunlDczqeiFs", 
-        "order_id" : userID
+        "order_id" : userID.split(';')[0]
     }
     async with aiohttp.ClientSession() as session:
         response = await (await session.post(url, headers=headers, json=body, ssl=False)).json()
