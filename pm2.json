@@ -1,0 +1,12 @@
+{
+    "apps": [
+      {
+        "name": "my-app",
+        "script": "gunicorn --bind 127.0.0.1:8000 predict_baseball_service.wsgi",
+        "watch": false,
+        "max_memory_restart": "256M",
+        "kill_timeout": 5000,
+        "restartDelay": 5000
+      }
+    ]
+  }
