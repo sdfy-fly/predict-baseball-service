@@ -73,3 +73,20 @@ class GetUserInfo(APIView):
             return None
 
         return {'userInfo': userInfo}
+
+class GetUpdatedUserData(APIView):
+
+    def post(self, request):
+        
+        user_id = request.data['userID']
+        return self.getUserData(user_id)
+
+    @async_to_sync
+    async def getUserData(self, user_id):
+        user =  await Users.objects.aget(user_id = user_id)
+        userInfo = {
+            'nickname' : user.nickname , 
+            'created_at' : user.created_at , 
+            'subscription_date' : user.subscription_date
+        }
+        return userInfo

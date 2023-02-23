@@ -13,4 +13,5 @@ urlpatterns = [
     path('api/user-info', GetUserInfo.as_view() , name='userInfo') ,  
     path('api/invoice/create', CreatePaymentUrl.as_view() , name='create-payment') ,  
     path('api/invoice/payment-handler', PaymentHandler.as_view() , name='payment-handler') ,  
+    path('api/office' , )
 ]
