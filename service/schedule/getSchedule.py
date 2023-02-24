@@ -10,12 +10,12 @@ async def getSchedule():
     async with aiohttp.ClientSession() as session:
         
         async def auth_(session: aiohttp.ClientSession, auth):
-            async with session.post('https://www.rotowire.com/users/login.php', data=auth) as r:
+            async with session.post('https://www.rotowire.com/users/login.php', data=auth, ssl=False) as r:
                 await r.text()
 
         async def getData(session: aiohttp.ClientSession, url):
-            async with session.get(url=url) as response:
-                soup = BeautifulSoup(await response.text(), 'lxml')
+            async with session.get(url=url, ssl=False) as response:
+                soup = BeautifulSoup(await response.text(), 'html.parser')
                 schedule = soup.find('div', class_=['starters-matrix', 'mb-10'])
                 table_lines = schedule.findAll('div', class_=['flex-row', 'myleagues__proteam'])
                 for line in table_lines:
@@ -58,13 +58,13 @@ async def getInjuryNews(date,sport:str):
 
     async with aiohttp.ClientSession() as session:
 
-        async with session.post('https://www.rotowire.com/users/login.php', data=auth) as r:
+        async with session.post('https://www.rotowire.com/users/login.php', data=auth, ssl=False) as r:
             await r.text()
 
-        async with session.post(url=url) as response:
+        async with session.post(url=url, ssl=False) as response:
             res = []
             data = await response.json()
-            soup = BeautifulSoup(data['updatesHTML'], 'lxml')
+            soup = BeautifulSoup(data['updatesHTML'], 'html.parser')
             injures = soup.find_all(class_='news-update')
             for injure in injures:
                 logo = injure.find(class_='news-update__logo')
