@@ -34,7 +34,7 @@ class CreatePaymentUrl(APIView):
     async def getPaymentUrl(self, order_id, amount):
         
         try: 
-            return await createPaymentUrl(userID=order_id, amount=amount)
+            return await createPaymentUrl(order_id=order_id, amount=amount)
         except Exception as _ex:
             print(_ex)
             return None
@@ -49,7 +49,7 @@ class PaymentHandler(APIView):
         if status == 'success':
 
             userID , subscritionRange = request.data['order_id'].split(';')
-            
+    
             self.updateSubscrition(userID , subscritionRange)
             
         return Response(status=200)

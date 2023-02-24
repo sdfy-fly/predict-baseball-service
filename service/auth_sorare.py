@@ -82,8 +82,14 @@ class AuthWithSorare:
         access_token = await self._getAccessToken(code)
         userInfo = await self._getInfo(access_token)
         user_ID_nickname = await self._getUserID(access_token)
-        userInfo['userID'] = user_ID_nickname['userID']
-        userInfo['nickname'] = user_ID_nickname['nickname']
+
+        if (user_ID_nickname['nickname'].count('-') > 0) : 
+            userInfo['nickname'] = ''.join(user_ID_nickname['nickname'].split('-')[0])
+        else:
+            userInfo['nickname'] : str = user_ID_nickname['nickname']
+
+
+        userInfo['userID'] : str = user_ID_nickname['userID']
         userInfo['accessToken'] = access_token
 
         return userInfo

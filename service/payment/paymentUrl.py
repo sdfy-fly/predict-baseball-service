@@ -1,6 +1,6 @@
 import aiohttp
 
-async def createPaymentUrl(userID:str, amount:float):
+async def createPaymentUrl(order_id:str, amount:float):
 
     url = "https://api.cryptocloud.plus/v1/invoice/create"
     headers = {
@@ -9,7 +9,8 @@ async def createPaymentUrl(userID:str, amount:float):
     body = {
         "amount" : amount,
         "shop_id" : "gQ4diunlDczqeiFs", 
-        "order_id" : userID.split(';')[0]
+        "order_id" : order_id, 
+        "currency" : "USD"
     }
     async with aiohttp.ClientSession() as session:
         response = await (await session.post(url, headers=headers, json=body, ssl=False)).json()
