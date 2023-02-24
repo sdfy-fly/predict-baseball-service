@@ -79,7 +79,8 @@ class GetUpdatedUserData(APIView):
     def post(self, request):
         
         user_id = request.data['userID']
-        return self.getUserData(user_id)
+        userInfo = self.getUserData(user_id)
+        return Response(userInfo)
 
     @async_to_sync
     async def getUserData(self, user_id):
