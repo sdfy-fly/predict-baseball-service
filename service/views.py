@@ -1,16 +1,20 @@
+import datetime
+
 from django.shortcuts import render, redirect
 
-from .utils import *
-from .playersDetail import MBADetail,NbaDetail
-from .schedule import *
+
+from .payment.paymentViews import CreatePaymentUrl, PaymentHandler
+from .sorareCards.cardViews import UserCards 
+from .schedule.scheduleViews import GetSchesule , GetInjuryNews
+from .playerDetails.playerDetailsViews import PlayersDetail
+
 from .auth_sorare import AuthWithSorare
 
-from django.contrib.auth.models import User
+from .models import Users
 from asgiref.sync import sync_to_async, async_to_sync
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
-
 
 
 async def index(request):
@@ -33,27 +37,8 @@ class Auth(APIView):
 
         # сохранить данные в бд
 
-        return redirect(f'http://localhost:3000?code={code}')
+        return redirect(f'http://sorareup.com?code={code}')
 
-    def post(self, request):
-        email = request.data.get('email')
-        password = request.data.get('password')
-        userInfo = self.auth(email, password)
-        if not userInfo:
-            return Response(status=403)
-
-        return Response(userInfo)
-
-    @async_to_sync
-    async def auth(self, email, password):
-
-        try:
-            JwtToken = await getJWT(email, password)
-            userInfo = await getInfo(JwtToken)
-        except:
-            return None
-
-        return {'userInfo': userInfo}
 
 
 class GetUserInfo(APIView):
@@ -71,92 +56,41 @@ class GetUserInfo(APIView):
     @async_to_sync
     async def _auth(self, code):
         try:
+
+            # Получение userInfo, добавление в базу пользователя, и если он новый юзер то выдаю подписку на 5 месяцев
+
             userInfo = await AuthWithSorare().getUserInfo(code)
+
+            user, status = await Users.objects.aget_or_create(
+                nickname = userInfo['nickname'] , 
+                user_id = userInfo['userID'] , 
+                defaults={'last_visit':datetime.datetime.now()}
+            )
+            if (not status):
+                userInfo["subscription_date"] = user.subscription_date
+                await sync_to_async(user.save)()
+            else : 
+                userInfo["subscription_date"] = datetime.datetime.today() + datetime.timedelta(weeks=4*5)
+            
         except:
             return None
 
         return {'userInfo': userInfo}
 
-
-class UserCards(APIView):
-
-    def post(self, request):
-        x_algolia_api_key = request.data['x-algolia-api-key']
-        x_algolia_application_id = request.data['x-algolia-application-id']
-        userID = request.data['userID']
-        sport = request.data['sport']
-
-        cards = self.getCards(sport,x_algolia_api_key, x_algolia_application_id, userID)
-        return Response(cards)
-
-    @async_to_sync
-    async def getCards(self,sport:str,x_algolia_api_key, x_algolia_application_id, userID):
-
-        cards = None
-        if sport.lower() == 'mba' :
-            cards = await MBACards().getCards(x_algolia_api_key, x_algolia_application_id, userID)
-
-        if sport.lower() == 'nba' :
-            cards = await NBACards().getCards(x_algolia_api_key, x_algolia_application_id, userID)
-        return cards
-
-
-class PlayersDetail(APIView):
+class GetUpdatedUserData(APIView):
 
     def post(self, request):
         
-        sport = request.data['sport']
-
-        data = self.getPlayersDetail(sport)
-
-        if data:
-            return Response(data)
-
-        return Response(status=500)
+        user_id = request.data['userID']
+        userInfo = self.getUserData(user_id)
+        return Response(userInfo)
 
     @async_to_sync
-    async def getPlayersDetail(self,sport:str):
-
-        if sport.lower() == 'mba' :
-            gpd = MBADetail()
- 
- 
-        elif sport.lower() == 'nba' :
-            gpd = NbaDetail()
-
-        else : 
-            return None
-        try:
-            data = await gpd.getData()
-            return data
-        except:
-            return None
-
-
-class GetSchesule(APIView):
-
-    def post(self, request):
-        data = self.getData()
-        return Response(data)
-
-    @async_to_sync
-    async def getData(self):
-        return await getSchedule()
-
-
-class GetInjuryNews(APIView):
-
-    def post(self, request):
-        data = self.getData(request.data['date'],request.data['sport'])
-        if data:
-            return Response(data)
-        else:
-            return Response(status=500)
-
-    @async_to_sync
-    async def getData(self, date,sport):
-
-        try:
-            return await getInjuryNews(date,sport)
-        except:
-            return None
+    async def getUserData(self, user_id):
+        user =  await Users.objects.aget(user_id = user_id)
+        userInfo = {
+            'nickname' : user.nickname , 
+            'created_at' : user.created_at , 
+            'subscription_date' : user.subscription_date
+        }
+        return userInfo
