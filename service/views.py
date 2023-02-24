@@ -90,4 +90,4 @@ class GetUpdatedUserData(APIView):
             'created_at' : user.created_at , 
             'subscription_date' : user.subscription_date
         }
-        return userInfo
+        return {'userInfo' : userInfo}
