@@ -25,12 +25,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'corsheaders',
-
     'service.apps.ServiceConfig',
-    'payment.apps.PaymentConfig'
-    'rest_framework'
+    'payment.apps.PaymentConfig',
+    'users.apps.UsersConfig',
 
+    'corsheaders',
+    'rest_framework'
 ]
 
 MIDDLEWARE = [

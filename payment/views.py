@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from datetime import timedelta
 
 from .paymentUrl import createPaymentUrl
-from service.models import Users
+from users.models import Users
 
 from asgiref.sync import async_to_sync, sync_to_async
 
