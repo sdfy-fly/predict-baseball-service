@@ -3,12 +3,13 @@ from bs4 import BeautifulSoup
 
 auth = {'username': 'Keysik', 'password': 'Fantasymlb'}
 
-async def getSchedule():
+
+async def get_schedule():
     url = 'https://www.rotowire.com/baseball/projected-starters.php'
     res = []
 
     async with aiohttp.ClientSession() as session:
-        
+
         async def auth_(session: aiohttp.ClientSession, auth):
             async with session.post('https://www.rotowire.com/users/login.php', data=auth) as r:
                 await r.text()
@@ -48,7 +49,7 @@ async def getSchedule():
         return res[1:]
 
 
-async def getInjuryNews(date,sport:str):
+async def get_injury_news(date, sport: str):
     """ принимаю дату в формате 2022-10-18"""
 
     if sport.lower() == 'mba':
