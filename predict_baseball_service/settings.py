@@ -24,9 +24,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'corsheaders',
+
     'service.apps.ServiceConfig',
+    'payment.apps.PaymentConfig'
     'rest_framework'
+
 ]
 
 MIDDLEWARE = [
@@ -67,10 +71,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'sorareup',
-        'USER' : 'postgres',
-        'PASSWORD' : '123' , 
-        'HOST' : 'localhost' , 
-        'PORT' : '5432'
+        'USER': 'postgres',
+        'PASSWORD': '123',
+        'HOST': 'localhost',
+        'PORT': '5432'
     }
 }
 
